@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Operación BLOQUE · Prototipo</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="gameRoot">
+  <div id="stage">
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hudLives">❤️❤️❤️❤️❤️</div>
+      <div id="hudTimer">00:00</div>
+      <div id="hudGlossary">📘</div>
+      <div id="hudHistory">🗒️</div>
+    </div>
+
+    <!-- Objetivo actual -->
+    <div id="objectiveBar">🎯 <span id="objectiveText">Explora el pasillo.</span></div>
+
+    <!-- Botón de pista -->
+    <div id="hintBtn" title="Pista">💡<span id="hintBadge">3</span></div>
+
+    <!-- Subtitles -->
+    <div id="subtitleBox"><span class="who"></span><span class="txt"></span></div>
+
+    <!-- ===== HALLWAY SCENE ===== -->
+    <div class="scene" id="scn-hallway">
+      <div class="hall-ceil"></div>
+      <div class="hall-floor"></div>
+      <div class="hall-light" style="left:14%;"></div>
+      <div class="hall-light" style="left:30%;"></div>
+      <div class="hall-light" style="left:46%;"></div>
+      <div class="hall-light" style="left:62%;"></div>
+      <div class="hall-light" style="left:78%;"></div>
+      <div class="doors-row" id="doorsRow"></div>
+    </div>
+
+    <!-- ===== ROOM 1 SCENE ===== -->
+    <div class="scene" id="scn-room1">
+      <button id="backToHall">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+
+      <div class="rack hotspot glow-pulse" id="hs-rack" title="">
+        <div class="led-row"><span class="on"></span><span></span><span class="on2"></span></div>
+        <div class="led-row"><span></span><span class="on"></span><span></span></div>
+        <div class="led-row"><span class="on2"></span><span></span><span class="on"></span></div>
+        <div class="led-row"><span></span><span class="on"></span><span class="on2"></span></div>
+      </div>
+
+      <div class="vent" id="hs-vent"></div>
+
+      <div class="desk"></div>
+      <div class="drawer hotspot glow-pulse" id="hs-drawer"><div class="handle"></div></div>
+      <div class="drawer-item" id="usbItem">💾</div>
+
+      <div class="monitor hotspot" id="hs-monitor">
+        <div class="screen"><div class="scan"></div><div class="waitIcon">⏏</div></div>
+        <div class="stand"></div>
+      </div>
+
+      <div class="cabinet hotspot" id="hs-cabinet">
+        <div class="door" id="cabinetDoor">
+          <div class="slots" id="slotsRow">
+            <div class="slot" data-slot="0"></div>
+            <div class="slot" data-slot="1"></div>
+            <div class="slot" data-slot="2"></div>
+          </div>
+        </div>
+        <div class="padlock" id="cabinetPadlock">🔒</div>
+        <div class="fragmentGlow" id="fragmentB">B</div>
+      </div>
+
+    </div>
+
+    <!-- ===== ROOM 2 SCENE: NETWORK REPAIR ===== -->
+    <div class="scene" id="scn-room2">
+      <button class="backBtn" id="backToHall2">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+
+      <div class="netpanel" id="netHexes"></div>
+      <div class="netcover hotspot glow-pulse" id="hs-netcover"></div>
+
+      <div class="toolboxVent hotspot glow-pulse" id="hs-toolbox">
+        <div class="grille"></div>
+      </div>
+      <div class="toolbox-item" id="toolboxItem">🧰</div>
+    </div>
+
+    <!-- ===== ROOM 3 SCENE: NETWORK MAP ===== -->
+    <div class="scene" id="scn-room3">
+      <button class="backBtn" id="backToHall3">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+
+      <div class="breaker hotspot glow-pulse" id="hs-breaker"><div class="lever">⏚</div></div>
+      <div id="hubsRow3"></div>
+      <div id="nodesArea3"></div>
+    </div>
+
+    <!-- ===== ROOM 4 SCENE: CONTRACT TERMINAL ===== -->
+    <div class="scene" id="scn-room4">
+      <button class="backBtn" id="backToHall4">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+
+      <div class="filecab hotspot" id="hs-filecab">
+        <div class="fdrawer" id="fdrawer1" style="top:8%;"><div class="fhandle"></div></div>
+        <div class="fdrawer" id="fdrawer2" style="top:38%;"><div class="fhandle"></div></div>
+        <div class="fdrawer" id="fdrawer3" style="top:68%;"><div class="fhandle"></div></div>
+      </div>
+      <div class="note-item" id="noteItem">📄</div>
+
+      <div class="termbox hotspot" id="hs-termbox">
+        <div style="font-size:.7rem;color:var(--muted);">TERMINAL DE CONTRATO</div>
+        <input type="text" id="termInput" placeholder="código">
+        <button id="termBtn">Ejecutar</button>
+      </div>
+
+      <div class="cables">
+        <div class="cable red" data-c="red"><span class="wirelabel">Conectado a una API externa</span></div>
+        <div class="cable blue" data-c="blue"><span class="wirelabel">Conectado a un servidor centralizado</span></div>
+        <div class="cable green" data-c="green"><span class="wirelabel">Conectado a un nodo oráculo</span></div>
+      </div>
+    </div>
+
+    <!-- ===== ROOM 5 SCENE: TOKEN VAULT ===== -->
+    <div class="scene" id="scn-room5">
+      <button class="backBtn" id="backToHall5">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+
+      <div class="crate hotspot glow-pulse" id="hs-crate" style="left:8%;bottom:16%;">
+        <div class="qrpattern" id="qrPattern"></div>
+      </div>
+
+      <div class="vaultdoor" id="vaultDoor"></div>
+      <div class="tokenslots" id="tokenSlots"></div>
+    </div>
+
+    <!-- ===== ROOM 6 SCENE: NFT FORENSICS LAB ===== -->
+    <div class="scene" id="scn-room6">
+      <button class="backBtn" id="backToHall6">← Pasillo</button>
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+      <div class="hashRef" id="hashRef"><span class="lbl">CERTIFICADO ORIGINAL</span><span id="hashRefValue">—</span></div>
+      <div class="scanner-light"></div>
+      <div class="hashgrid" id="hashGrid"></div>
+    </div>
+
+    <!-- ===== SALA FINAL: RECONSTRUIR LA PALABRA ===== -->
+    <div class="scene" id="scn-finalpuzzle">
+      <div class="wallback"></div>
+      <div class="floorline"></div>
+      <div class="finalHeading">🔓 Reconstruye la palabra clave del sistema</div>
+      <div id="finalSlotsRow"></div>
+    </div>
+
+    <!-- Inventory -->
+    <div id="invBar"></div>
+
+    <!-- ===== TITLE OVERLAY ===== -->
+    <div class="ui-overlay" id="ov-title">
+      <div class="ui-box">
+        <h1>⛓️ OPERACIÓN BLOQUE</h1>
+        <div class="sub">PROTOTIPO · SALA 1</div>
+        <p>El hospital digital CryptoVault fue invadido. Explora, encuentra objetos, combínalos y descubre cómo escapar.</p>
+        <button class="gbtn" id="btnPlay">▶ Entrar</button>
+      </div>
+    </div>
+
+    <!-- ===== NAME OVERLAY ===== -->
+    <div class="ui-overlay hidden" id="ov-name">
+      <div class="ui-box">
+        <h1>Identifícate</h1>
+        <div class="sub">REGISTRO DEL SISTEMA</div>
+        <input type="text" id="introName" placeholder="Nombre y apellido">
+        <div id="introNameError" class="form-error">Escribe tu nombre completo para continuar (mínimo 3 caracteres).</div>
+        <div><button class="gbtn" id="btnStart">Iniciar</button></div>
+      </div>
+    </div>
+
+    <!-- ===== TARJETA DE TEORÍA OBLIGATORIA POR SALA ===== -->
+    <div class="ui-overlay hidden" id="ov-roomintro">
+      <div class="ui-box wide">
+        <h1 id="roomIntroTitle"></h1>
+        <div class="sub" id="roomIntroSub"></div>
+        <p id="roomIntroText"></p>
+        <div class="examplesBox">
+          <span class="exTitle">Ejemplos</span>
+          <ul id="roomIntroExamples"></ul>
+        </div>
+        <button class="gbtn" id="btnRoomIntroContinue">Entendido, continuar →</button>
+      </div>
+    </div>
+
+    <!-- ===== GLOSARIO ===== -->
+    <div class="ui-overlay hidden" id="ov-glossary">
+      <div class="ui-box wide glossaryBox">
+        <h1>📘 Glosario</h1>
+        <input type="text" id="glossarySearch" placeholder="Buscar un término...">
+        <div id="glossaryList"></div>
+        <button class="gbtn" id="btnGlossaryClose">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- ===== HISTORIAL ===== -->
+    <div class="ui-overlay hidden" id="ov-history">
+      <div class="ui-box wide glossaryBox">
+        <h1>🗒️ Historial</h1>
+        <div class="sub">Pistas usadas y elementos encontrados durante tu partida</div>
+        <div id="historyList"></div>
+        <button class="gbtn" id="btnHistoryClose">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- ===== FINAL OVERLAY ===== -->
+    <div class="ui-overlay hidden" id="ov-final">
+      <div class="ui-box">
+        <h1>🔓 SISTEMA RECUPERADO</h1>
+        <div class="finalWord" id="finalWord">------</div>
+        <div class="scoreLine" id="scoreLine">Puntaje: 0</div>
+        <div class="sub" id="rankBadge">Rango: —</div>
+        <div class="nucleoSummary" id="nucleoSummary"></div>
+        <div id="sendWarning">⚠ No se pudo enviar tu resultado a la hoja de registro (sin conexión o no configurada). Toma una captura de pantalla de este resultado como respaldo y muéstrasela a tu profesora.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
