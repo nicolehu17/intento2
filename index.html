@@ -15,8 +15,9 @@
     <div id="hud">
       <div id="hudLives">❤️❤️❤️❤️❤️</div>
       <div id="hudTimer">00:00</div>
-      <div id="hudGlossary">📘</div>
-      <div id="hudHistory">🗒️</div>
+      <div id="hudTheme" title="Cambiar modo claro/oscuro">🌙 Oscuro</div>
+      <div id="hudGlossary">📘 Glosario</div>
+      <div id="hudHistory">🗒️ Historial</div>
     </div>
 
     <!-- Objetivo actual -->
@@ -26,7 +27,10 @@
     <div id="hintBtn" title="Pista">💡<span id="hintBadge">3</span></div>
 
     <!-- Subtitles -->
-    <div id="subtitleBox"><span class="who"></span><span class="txt"></span></div>
+    <div id="subtitleBox">
+      <span class="who"></span><span class="txt"></span>
+      <span id="subtitleClose" title="Cerrar">✕</span>
+    </div>
 
     <!-- ===== HALLWAY SCENE ===== -->
     <div class="scene" id="scn-hallway">
@@ -123,6 +127,7 @@
         <button id="termBtn">Ejecutar</button>
       </div>
 
+      <div class="cablesHint" id="cablesHint">✂ Corta los cables que NO sean la fuente verificada por el oráculo. Deja conectado solo el correcto.</div>
       <div class="cables">
         <div class="cable red" data-c="red"><span class="wirelabel">Conectado a una API externa</span></div>
         <div class="cable blue" data-c="blue"><span class="wirelabel">Conectado a un servidor centralizado</span></div>

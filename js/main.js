@@ -1,6 +1,24 @@
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
 
+/* ===================== MODO CLARO / OSCURO =====================
+   Default oscuro. Se recuerda la preferencia entre partidas con
+   localStorage; si el navegador no lo permite (ej. modo privado), el
+   juego simplemente vuelve a abrir en oscuro cada vez, sin romper nada. */
+let currentTheme = "dark";
+try{ currentTheme = localStorage.getItem("bloqueTheme") || "dark"; }catch(e){}
+function applyTheme(){
+  document.body.classList.toggle("light", currentTheme==="light");
+  const btn = $("#hudTheme");
+  if(btn) btn.textContent = currentTheme==="light" ? "☀️ Claro" : "🌙 Oscuro";
+}
+$("#hudTheme").onclick = ()=>{
+  currentTheme = currentTheme==="light" ? "dark" : "light";
+  try{ localStorage.setItem("bloqueTheme", currentTheme); }catch(e){}
+  applyTheme();
+};
+applyTheme();
+
 /* ===================== ESTADO ===================== */
 let lives = 5;
 let inventory = []; // {id, icon}
@@ -65,6 +83,23 @@ const finalLetters = [
   {fragId:"fragE", letter:"E"}
 ];
 let finalSlotsFilled = 0;
+
+/* ===================== ASIGNACIÓN ALEATORIA DE LETRA POR SALA =====================
+   La palabra final siempre es BLOQUE y el puzzle final siempre exige hallar
+   la posición correcta de cada letra (eso no cambia). Lo que se sortea cada
+   partida es QUÉ sala entrega cuál letra, para que no sea siempre "sala 1 =
+   B, sala 2 = L..." sino un orden distinto cada vez que se juega. */
+let roomLetterAssignment = null;
+function assignRoomLetters(){
+  if(roomLetterAssignment) return;
+  const shuffled = finalLetters.map(l=>l.letter);
+  for(let i=shuffled.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
+  }
+  roomLetterAssignment = {};
+  for(let n=1;n<=6;n++) roomLetterAssignment[n] = shuffled[n-1];
+}
 
 function buildFinalSlots(){
   const row = $("#finalSlotsRow");
@@ -165,7 +200,9 @@ function sendResultsToSheet(payload){
   fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
     method: "POST",
     mode: "no-cors",
-    headers: {"Content-Type":"application/json"},
+    // text/plain evita el preflight CORS que Apps Script Web Apps no maneja
+    // bien en modo no-cors; el servidor igual hace JSON.parse() del cuerpo.
+    headers: {"Content-Type":"text/plain;charset=utf-8"},
     body: JSON.stringify(payload),
     signal: controller.signal
   }).then(()=>{
@@ -210,6 +247,15 @@ function showNotice(who, text, ms=4200){
   if(noticeTimer) clearTimeout(noticeTimer);
   noticeTimer = setTimeout(()=> box.classList.remove("show"), ms);
 }
+/* Botón ✕: el estudiante decide cuándo quitar el texto en pantalla en vez
+   de esperar a que se oculte solo, sin importar si lo abrió showHintNow,
+   showNotice o showPuzzleHint (todos comparten el mismo #subtitleBox). */
+$("#subtitleClose").onclick = (e)=>{
+  e.stopPropagation();
+  if(hintTimer) clearTimeout(hintTimer);
+  if(noticeTimer) clearTimeout(noticeTimer);
+  $("#subtitleBox").classList.remove("show");
+};
 
 /* ===================== HISTORIAL =====================
    Registro de pistas usadas y elementos/pistas encontrados durante la
@@ -755,16 +801,18 @@ function unlockCabinet(){
   $("#cabinetDoor").classList.add("swing");
   subtitle("ARCA","¡Conexión correcta! El gabinete se abrió.",3200);
   setObjective("Recoge el fragmento de letra que apareció.");
+  $("#fragmentB").textContent = roomLetterAssignment[1];
   setTimeout(()=>{
     $("#fragmentB").classList.add("show");
   }, 500);
 }
 $("#fragmentB").onclick = (e)=>{
   e.stopPropagation();
-  addItem("fragB","🔠B","Fragmento B");
+  const letter = roomLetterAssignment[1];
+  addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
   $("#fragmentB").classList.remove("show");
   $("#fragmentB").style.pointerEvents = "none";
-  subtitle("ARCA","Fragmento B recuperado. El pasillo reconoce tu progreso.",3400);
+  subtitle("ARCA","Fragmento "+letter+" recuperado. El pasillo reconoce tu progreso.",3400);
   doorMeta[0].status = "solved";
   unlockNextDoor(1);
   setObjective("Vuelve al pasillo. Un nuevo sector está disponible.");
@@ -950,7 +998,7 @@ $("#hs-netcover").onclick = ()=>{
     buildRoom2Hexes();
     room2Puzzle = createDragPuzzle({
       id:"r2", scene:"#scn-room2", slotSelector:"#netHexes .hexsocket", cardClass:"node-chip",
-      cards: room2Cards, zone:{xMin:24,xMax:74,yMin:74,yMax:86}, slotsCount:5,
+      cards: room2Cards, zone:{xMin:24,xMax:74,yMin:74,yMax:80}, slotsCount:5,
       checkFn: (slots)=>{
         const orderMap = {step0:0,step1:1,step2:2,step3:3,step4:4};
         return slots.every((cid,idx)=> orderMap[cid]===idx);
@@ -989,19 +1037,20 @@ function buildRoom2Hexes(){
   });
 }
 function unlockRoom2(){
+  const letter = roomLetterAssignment[2];
   subtitle("ARCA","¡Red estabilizada! Un fragmento quedó expuesto en el panel.",3400);
   setObjective("Recoge el fragmento de letra del panel.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
-  frag.id = "fragmentL";
-  frag.textContent = "L";
+  frag.id = "fragmentRoom2";
+  frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "50%";
   $("#netHexes").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
-    addItem("fragL","🔠L","Fragmento L");
+    addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
     frag.remove();
-    subtitle("ARCA","Fragmento L recuperado.",3000);
+    subtitle("ARCA","Fragmento "+letter+" recuperado.",3000);
     doorMeta[1].status = "solved";
     unlockNextDoor(2);
     setObjective("Vuelve al pasillo. Un nuevo sector está disponible.");
@@ -1074,18 +1123,19 @@ function buildRoom3(){
   puzzle.spawn();
 }
 function unlockRoom3(){
+  const letter = roomLetterAssignment[3];
   subtitle("ARCA","¡Red mapeada correctamente! Un fragmento se liberó.",3400);
   setObjective("Recoge el fragmento de letra liberado.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
-  frag.id = "fragmentO"; frag.textContent = "O";
+  frag.id = "fragmentRoom3"; frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "8%";
   $("#scn-room3").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
-    addItem("fragO","🔠O","Fragmento O");
+    addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
     frag.remove();
-    subtitle("ARCA","Fragmento O recuperado.",3000);
+    subtitle("ARCA","Fragmento "+letter+" recuperado.",3000);
     doorMeta[2].status = "solved";
     unlockNextDoor(3);
     setObjective("Vuelve al pasillo. Un nuevo sector está disponible.");
@@ -1174,6 +1224,7 @@ $("#termBtn").onclick = ()=>{
     subtitle("ARCA","Contrato armado. Corta los cables que no correspondan a una fuente verificada por el oráculo, y deja conectado el cable correcto.",4400);
     setObjective("Corta los cables que no correspondan a una fuente verificada por el oráculo. Si no sabes cuál es, usa una pista.");
     pulse(".cables");
+    $("#cablesHint").classList.add("show");
   } else {
     loseLife();
     subtitle("ARCA","Código incorrecto. Revisa la nota nuevamente.",2800);
@@ -1212,18 +1263,20 @@ document.querySelectorAll("#scn-room4 .cable").forEach(cableEl=>{
   };
 });
 function unlockRoom4(){
+  $("#cablesHint").classList.remove("show");
+  const letter = roomLetterAssignment[4];
   subtitle("ARCA","¡Contrato ejecutado correctamente! Un fragmento se liberó.",3400);
   setObjective("Recoge el fragmento de letra liberado.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
-  frag.id = "fragmentQ"; frag.textContent = "Q";
+  frag.id = "fragmentRoom4"; frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "10%";
   $("#scn-room4").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
-    addItem("fragQ","🔠Q","Fragmento Q");
+    addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
     frag.remove();
-    subtitle("ARCA","Fragmento Q recuperado.",3000);
+    subtitle("ARCA","Fragmento "+letter+" recuperado.",3000);
     doorMeta[3].status = "solved";
     unlockNextDoor(4);
     setObjective("Vuelve al pasillo. Un nuevo sector está disponible.");
@@ -1321,7 +1374,7 @@ function buildRoom5TokenPuzzle(){
   const cards = room5Types.map((t,i)=> ({id:t.id, cls:"t"+i, label:t.chipIcon, name:t.short, examine:t.examine}));
   const puzzle = createDragPuzzle({
     id:"r5", scene:"#scn-room5", slotSelector:"#tokenSlots .tokenhub", cardClass:"token-chip",
-    cards, zone:{xMin:8,xMax:92,yMin:60,yMax:80}, slotsCount:3,
+    cards, zone:{xMin:8,xMax:92,yMin:58,yMax:74}, slotsCount:3,
     checkFn: (slots)=> room5Types.every((t,idx)=> slots[idx]===t.id),
     onSolved: ()=> unlockRoom5(),
     onWrong: ()=>{
@@ -1333,18 +1386,19 @@ function buildRoom5TokenPuzzle(){
   puzzle.spawn();
 }
 function unlockRoom5(){
+  const letter = roomLetterAssignment[5];
   subtitle("ARCA","¡Tokens asignados correctamente! Un fragmento se liberó.",3400);
   setObjective("Recoge el fragmento de letra liberado.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
-  frag.id = "fragmentU"; frag.textContent = "U";
+  frag.id = "fragmentRoom5"; frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "8%";
   $("#scn-room5").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
-    addItem("fragU","🔠U","Fragmento U");
+    addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
     frag.remove();
-    subtitle("ARCA","Fragmento U recuperado.",3000);
+    subtitle("ARCA","Fragmento "+letter+" recuperado.",3000);
     doorMeta[4].status = "solved";
     unlockNextDoor(5);
     setObjective("Vuelve al pasillo. Un nuevo sector está disponible.");
@@ -1424,18 +1478,19 @@ function handleRoom6Pick(el, value){
   }
 }
 function unlockRoom6(){
+  const letter = roomLetterAssignment[6];
   subtitle("ARCA","¡Certificado verificado! Un fragmento se liberó.",3400);
   setObjective("Recoge el fragmento de letra liberado.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
-  frag.id = "fragmentE"; frag.textContent = "E";
+  frag.id = "fragmentRoom6"; frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "82%";
   $("#scn-room6").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
-    addItem("fragE","🔠E","Fragmento E");
+    addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
     frag.remove();
-    subtitle("ARCA","Fragmento E recuperado. ¡Has reunido toda la palabra!",3200);
+    subtitle("ARCA","Fragmento "+letter+" recuperado. ¡Has reunido toda la palabra!",3200);
     doorMeta[5].status = "solved";
     setObjective("Vuelve al pasillo. Has completado todos los sectores.");
     setTimeout(()=>{ showScene("scn-hallway"); renderDoors(); checkGameComplete(); }, 1800);
@@ -1458,6 +1513,7 @@ $("#btnStart").onclick = ()=>{
   $("#introName").classList.remove("invalid");
   $("#introNameError").classList.remove("show");
   playerName = name;
+  assignRoomLetters();
   $("#ov-name").classList.add("hidden");
   showScene("scn-hallway");
   renderDoors();
@@ -1567,6 +1623,7 @@ function initDemoMode(){
     $("#ov-name").classList.add("hidden");
     $("#ov-final").classList.add("hidden");
     if(!playerName) playerName = "Demo";
+    assignRoomLetters();
     gameCompleteShown = false;
     startGameTimer();
     doorMeta.forEach(d=>{
@@ -1595,6 +1652,7 @@ function initDemoMode(){
     $("#ov-title").classList.add("hidden");
     $("#ov-name").classList.add("hidden");
     if(!playerName) playerName = "Demo";
+    assignRoomLetters();
     doorMeta.forEach(d=> d.status = "solved");
     // El puzzle final consume los fragmentos del inventario real; en modo demo
     // los agregamos aquí por si el profesor salta directo sin jugar las salas.
