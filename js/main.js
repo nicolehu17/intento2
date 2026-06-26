@@ -496,6 +496,31 @@ function gridPositions(n, zone){
   });
 }
 
+/* ===================== ARRASTRAR CON LA ROTACIÓN MÓVIL =====================
+   En celular, #gameRoot se rota 90° por CSS para forzar la vista horizontal
+   (ver style.css). El navegador pinta esa rotación solo, así que getBoundingClientRect()
+   del stage ya da las medidas visuales correctas — pero el resultado de ese
+   cálculo se usaba directamente como % de left/top, que CSS interpreta en el
+   espacio LÓGICO (antes de rotar), donde ancho y alto están intercambiados.
+   Por eso mover el dedo horizontal terminaba moviendo la pieza en vertical.
+   Esta función convierte un punto visual (relativo al stage) al left%/top%
+   lógico correcto, según si la rotación está activa o no. */
+function isStageRotated(){
+  return window.matchMedia("(max-width:700px) and (orientation:portrait)").matches;
+}
+function visualPointToStagePercent(stage, visualX, visualY){
+  if(isStageRotated()){
+    return {
+      leftPct: (visualY/stage.height)*100,
+      topPct: ((stage.width-visualX)/stage.width)*100
+    };
+  }
+  return {
+    leftPct: (visualX/stage.width)*100,
+    topPct: (visualY/stage.height)*100
+  };
+}
+
 /* ===================== RESALTADO DE OBJETOS INTERACTIVOS ===================== */
 function pulse(sel){
   const el = (typeof sel === "string") ? $(sel) : sel;
@@ -720,8 +745,9 @@ function makeDraggable(el, cardMeta){
     const stage = $("#stage").getBoundingClientRect();
     let leftPx = e.clientX - offX - stage.left;
     let topPx = e.clientY - offY - stage.top;
-    el.style.left = (leftPx/stage.width*100)+"%";
-    el.style.top = (topPx/stage.height*100)+"%";
+    const pos = visualPointToStagePercent(stage, leftPx, topPx);
+    el.style.left = pos.leftPct+"%";
+    el.style.top = pos.topPct+"%";
   });
   el.addEventListener("pointerup",(e)=>{
     if(!dragging) return;
@@ -756,10 +782,11 @@ function snapToSlot(cardEl, slotEl, cardMeta){
   const stage = $("#stage").getBoundingClientRect();
   const sr = slotEl.getBoundingClientRect();
   const cr = cardEl.getBoundingClientRect();
-  const left = (sr.left + sr.width/2 - cr.width/2 - stage.left)/stage.width*100;
-  const top = (sr.top + sr.height/2 - cr.height/2 - stage.top)/stage.height*100;
-  cardEl.style.left = left+"%";
-  cardEl.style.top = top+"%";
+  const visX = sr.left + sr.width/2 - cr.width/2 - stage.left;
+  const visY = sr.top + sr.height/2 - cr.height/2 - stage.top;
+  const pos = visualPointToStagePercent(stage, visX, visY);
+  cardEl.style.left = pos.leftPct+"%";
+  cardEl.style.top = pos.topPct+"%";
   cardEl.classList.add("placed");
   const slotIdx = +slotEl.dataset.slot;
   cardEl.dataset.slotIdx = slotIdx;
@@ -900,8 +927,9 @@ function createDragPuzzle(opts){
       if(!dragging) return;
       const stage = $("#stage").getBoundingClientRect();
       let leftPx = e.clientX-offX-stage.left, topPx = e.clientY-offY-stage.top;
-      el.style.left = (leftPx/stage.width*100)+"%";
-      el.style.top = (topPx/stage.height*100)+"%";
+      const pos = visualPointToStagePercent(stage, leftPx, topPx);
+      el.style.left = pos.leftPct+"%";
+      el.style.top = pos.topPct+"%";
     });
     el.addEventListener("pointerup",(e)=>{
       if(!dragging) return;
@@ -931,9 +959,10 @@ function createDragPuzzle(opts){
   function snap(cardEl, slotEl, cardMeta){
     const stage = $("#stage").getBoundingClientRect();
     const sr = slotEl.getBoundingClientRect(), cr = cardEl.getBoundingClientRect();
-    const left = (sr.left+sr.width/2-cr.width/2-stage.left)/stage.width*100;
-    const top = (sr.top+sr.height/2-cr.height/2-stage.top)/stage.height*100;
-    cardEl.style.left = left+"%"; cardEl.style.top = top+"%";
+    const visX = sr.left+sr.width/2-cr.width/2-stage.left;
+    const visY = sr.top+sr.height/2-cr.height/2-stage.top;
+    const pos = visualPointToStagePercent(stage, visX, visY);
+    cardEl.style.left = pos.leftPct+"%"; cardEl.style.top = pos.topPct+"%";
     cardEl.classList.add("placed");
     const slotIdx = +slotEl.dataset.slot;
     cardEl.dataset.slotIdx = slotIdx;
