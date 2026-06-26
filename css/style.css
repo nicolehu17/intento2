@@ -12,7 +12,29 @@
     aspect-ratio:16/9;background:#0d0b08;overflow:hidden;
     box-shadow:0 0 80px rgba(0,0,0,.9);
   }
-  @media(max-width:700px){ #stage{aspect-ratio:9/16;max-height:100vh;} }
+  /* Cuando el destornillador está seleccionado en el inventario, el cursor
+     se convierte en la herramienta — incluso sobre elementos que ya tienen
+     su propio cursor:pointer (como los tornillos), gracias al !important. */
+  #stage.tool-screwdriver, #stage.tool-screwdriver *{
+    cursor:url('../img/screwdriver-cursor.png') 4 32, pointer !important;
+  }
+
+  /* ============ FORZAR INTERFAZ HORIZONTAL EN CELULAR ============
+     El juego está diseñado como una escena 16:9 (horizontal). En vez de
+     reacomodar cada sala a un formato 9:16 vertical (que las deformaba),
+     cuando el teléfono está en posición vertical se rota visualmente todo
+     #gameRoot 90° con CSS para que el jugador vea la interfaz horizontal
+     completa — el celular debe girarse de lado para jugar, igual que la
+     mayoría de los juegos web pensados para horizontal. */
+  @media(max-width:700px) and (orientation:portrait){
+    html, body{width:100%;height:100%;}
+    #gameRoot{
+      position:fixed;top:0;left:100%;right:auto;bottom:auto;
+      width:100vh;height:100vw;
+      transform-origin:0 0;
+      transform:rotate(90deg);
+    }
+  }
 
   /* scanline / vignette overlay across whole game */
   #stage::before{
@@ -31,29 +53,38 @@
   #hud{position:absolute;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 16px;pointer-events:none;flex-wrap:wrap;}
   #hudLives{font-size:.85rem;letter-spacing:2px;text-shadow:0 0 6px rgba(0,0,0,.8);pointer-events:auto;}
   #hudGlossary, #hudHistory, #hudTheme{
-    pointer-events:auto;background:rgba(5,8,15,.6);border:1px solid rgba(140,155,135,.4);color:var(--accent2);
-    border-radius:20px;padding:5px 12px;font-size:.72rem;cursor:pointer;backdrop-filter:blur(2px);
+    pointer-events:auto;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.4);color:var(--accent2);
+    border-radius:20px;padding:5px 12px;font-size:.72rem;cursor:pointer;
     white-space:nowrap;
   }
-  #hudGlossary:hover, #hudHistory:hover, #hudTheme:hover{background:rgba(140,155,135,.15);}
+  #hudGlossary:hover, #hudHistory:hover, #hudTheme:hover{background:rgba(30,38,28,.95);}
   #hudHistory.has-hint{box-shadow:0 0 10px rgba(255,210,120,.45);border-color:rgba(255,210,120,.5);}
   #hudTimer{
     pointer-events:none;font-family:monospace;font-size:.78rem;color:#c0b5a8;letter-spacing:1px;
-    background:rgba(5,8,15,.5);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:4px 9px;
+    background:rgba(10,9,7,.92);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:4px 9px;
   }
 
   /* ============ OBJETIVO ============ */
   #objectiveBar{
     position:absolute;top:44px;right:14px;z-index:46;max-width:46%;
-    background:rgba(8,11,16,.72);border:1px solid rgba(255,255,255,.1);border-left:3px solid #6b5d3e;
+    background:rgba(9,11,15,.95);border:1px solid rgba(255,255,255,.1);border-left:3px solid #6b5d3e;
     color:#ded9d3;font-size:.72rem;line-height:1.3;padding:6px 12px;border-radius:4px;
-    backdrop-filter:blur(2px);
+    display:flex;align-items:flex-start;gap:7px;
   }
+  /* Flecha para minimizar/expandir la indicación de la sala, por si el
+     estudiante prefiere despejar la pantalla mientras resuelve el puzzle. */
+  #objectiveToggle{
+    cursor:pointer;flex:0 0 auto;font-size:1.3rem;line-height:1;color:var(--accent2);
+    user-select:none;padding:0 3px;
+  }
+  #objectiveToggle:hover{color:#fff;}
+  #objectiveBar.minimized{padding:6px 9px;max-width:none;width:auto;}
+  #objectiveBar.minimized #objectiveContent{display:none;}
 
   /* ============ BOTÓN DE PISTA ============ */
   #hintBtn{
     position:absolute;bottom:2%;right:2%;z-index:48;width:38px;height:38px;border-radius:50%;
-    background:rgba(20,18,10,.75);border:1px solid rgba(255,210,120,.3);display:flex;align-items:center;
+    background:rgba(18,16,9,.94);border:1px solid rgba(255,210,120,.3);display:flex;align-items:center;
     justify-content:center;font-size:1.05rem;cursor:pointer;opacity:.55;transition:opacity .2s,box-shadow .2s;
   }
   #hintBtn.has-hint{opacity:1;box-shadow:0 0 14px rgba(255,210,120,.55);}
@@ -78,8 +109,8 @@
   #subtitleBox{
     position:absolute;left:50%;top:9%;transform:translateX(-50%);z-index:45;
     max-width:72%;text-align:center;pointer-events:none;opacity:0;transition:opacity .4s ease;
-    background:rgba(6,8,12,.78);border:1px solid rgba(255,255,255,.1);border-radius:8px;
-    padding:8px 30px 8px 14px;backdrop-filter:blur(2px);
+    background:rgba(6,8,12,.95);border:1px solid rgba(255,255,255,.1);border-radius:8px;
+    padding:8px 30px 8px 14px;
   }
   #subtitleBox.show{opacity:1;}
   #subtitleBox .who{display:block;font-size:.62rem;letter-spacing:2px;color:var(--accent2);margin-bottom:3px;text-shadow:0 0 6px rgba(0,0,0,.9);}
@@ -195,7 +226,7 @@
   }
   .door.unlocked .led{background:var(--accent);box-shadow:0 0 10px rgba(135,160,95,.9);}
   .door .doornum{font-family:monospace;color:var(--accent2);font-size:.95rem;margin-bottom:8%;letter-spacing:1px;opacity:.85;}
-  .door .lock{position:absolute;bottom:14%;font-size:1.1rem;opacity:.5;}
+  .door .lock{position:absolute;bottom:14%;font-size:1.5rem;opacity:.5;}
   .door.active{border-color:var(--accent2);box-shadow:0 0 22px rgba(140,155,135,.35) inset, 0 0 16px rgba(140,155,135,.25);}
   .door.active:hover{box-shadow:0 0 30px rgba(140,155,135,.55) inset,0 0 26px rgba(140,155,135,.4);}
   .door.locked{opacity:.45;cursor:not-allowed;}
@@ -241,15 +272,23 @@
   .drawer-item{
     position:absolute;left:30.5%;bottom:14.6%;width:4%;height:3%;border-radius:2px;
     background:linear-gradient(160deg,#e0c878,#8c6a3a);box-shadow:0 0 14px rgba(224,200,120,.9);
-    display:none;align-items:center;justify-content:center;font-size:.65rem;cursor:pointer;z-index:5;
+    display:none;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;z-index:5;
+    overflow:visible;
   }
   .drawer-item.show{display:flex;}
 
   .monitor{
     position:absolute;left:44%;bottom:22.5%;width:13%;height:16%;
   }
+  /* Carcasa/marco del monitor: sin esto la pantalla quedaba "flotando" sin
+     ningún borde que dibuje la forma del dispositivo completo. */
+  .monitor::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(160deg,#2b2722,#15120f);
+    border:3px solid #3a3a3a;border-radius:5px;
+  }
   .monitor .screen{
-    position:absolute;inset:8% 8% 18% 8%;background:#050403;border:2px solid #413a31;border-radius:3px;
+    position:absolute;inset:8% 8% 18% 8%;background:#050403;border:3px solid #3a3a3a;border-radius:3px;
     box-shadow:inset 0 0 10px rgba(0,0,0,.8);overflow:hidden;
   }
   .monitor .stand{position:absolute;bottom:0;left:42%;width:16%;height:10%;background:#221e1a;}
@@ -261,7 +300,7 @@
   .monitor.on .screen .scan{opacity:1;}
   .monitor .screen .waitIcon{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--accent);
-    font-size:1.1rem;opacity:0;
+    font-size:1.6rem;opacity:0;
   }
   .monitor.on .screen .waitIcon{opacity:.8;animation:blinkSoft 1.6s infinite;}
   @keyframes blinkSoft{0%,100%{opacity:.8;}50%{opacity:.25;}}
@@ -273,7 +312,7 @@
   .cabinet .door{position:absolute;inset:6%;border:1px solid #4a4136;border-radius:2px;background:rgba(5,8,14,.5);
     display:flex;transform-origin:left center;transition:transform .6s ease;}
   .cabinet .door.swing{transform:rotateY(-78deg);}
-  .cabinet .padlock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;z-index:3;transition:opacity .3s;}
+  .cabinet .padlock{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:2rem;z-index:3;transition:opacity .3s;}
   .cabinet .padlock.gone{opacity:0;pointer-events:none;}
   .cabinet .slots{position:absolute;inset:0;display:flex;gap:3%;align-items:center;justify-content:center;padding:0 4%;}
   .slot{
@@ -281,13 +320,33 @@
     display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.02);
   }
   .slot.filled{border-style:solid;border-color:var(--accent2);}
+  /* El fragmento de letra se ve como un cubo/bloque con la letra dentro
+     (no solo texto flotante), para que se lea claramente como un objeto
+     físico que el jugador debe recoger. */
   .fragmentGlow{
-    position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);font-family:monospace;font-size:2.2rem;
-    color:var(--gold);text-shadow:0 0 22px rgba(232,196,104,.9);opacity:0;transition:opacity .6s ease;z-index:4;
+    position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);
+    width:66px;height:66px;display:flex;align-items:center;justify-content:center;
+    font-family:monospace;font-size:2rem;font-weight:700;
+    color:var(--gold);
+    background:linear-gradient(145deg,#3c3220 0%,#211b12 55%,#0d0b08 100%);
+    border:2px solid rgba(232,196,104,.65);border-radius:10px;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,.6),
+      inset 0 2px 3px rgba(255,255,255,.18),
+      inset 0 -3px 6px rgba(0,0,0,.55),
+      0 0 26px rgba(232,196,104,.55);
+    opacity:0;transition:opacity .6s ease;
+    /* Por encima de cualquier pieza/casillero del puzzle (z-index 20-60),
+       ya que ahora aparece centrado en pantalla como objeto recogible y no
+       debe quedar tapado por lo que haya quedado en esa zona. */
+    z-index:70;
     cursor:pointer;
   }
   .fragmentGlow.show{opacity:1;animation:fragFloat 2.4s ease-in-out infinite;}
-  @keyframes fragFloat{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-6px);}}
+  @keyframes fragFloat{
+    0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(0deg);}
+    50%{transform:translate(-50%,-50%) translateY(-7px) rotate(-2deg);}
+  }
 
   /* era cards (loose draggable objects) — sized to actually fit inside .slot
      (slot ≈ 30%×46% of the cabinet door, a narrow portrait rectangle), so the
@@ -301,17 +360,15 @@
   .era-card:active{cursor:grabbing;}
   .era-card.dragging{z-index:60;box-shadow:0 0 22px rgba(140,155,135,.7);}
   .era-card.placed{cursor:default;}
-  .era-card.cardA{background:#03130a;background-image:repeating-linear-gradient(0deg,#0c2616 0 2px,#03130a 2px 5px);}
-  .era-card.cardB{background:linear-gradient(135deg,#2a1b4e,#532b6b 40%,#893a73);}
-  .era-card.cardC{background:#06121f;}
-  .era-card.cardC::after{
-    content:"⛓️";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;
-    filter:drop-shadow(0 0 6px rgba(135,160,95,.8));
+  .era-card.cardA{background:#fff;}
+  .era-card.cardB{background:#fff;}
+  .era-card.cardC{background:#fff;}
+  /* Cada tarjeta de era ahora muestra el logo real de un sitio de esa
+     época en vez de un ícono genérico. */
+  .era-card img{
+    position:absolute;inset:3%;width:94%;height:94%;object-fit:contain;
+    pointer-events:none;-webkit-user-drag:none;
   }
-  .era-card.cardB::after{content:"◉◉◉";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:.48rem;letter-spacing:1px;color:#d8c8a8;}
-  .era-card.cardA::after{content:"▮▯▮▯";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:.42rem;letter-spacing:.5px;color:#9ab57a;font-family:monospace;}
 
   /* ============ ROOM 2 SCENE: NETWORK REPAIR CONSOLE ============ */
   #scn-room2{background:radial-gradient(ellipse at 50% 30%,#181511 0%,#0d0b08 70%,#050403 100%);}
@@ -330,6 +387,20 @@
     box-shadow:0 0 14px rgba(140,155,135,.15);transition:transform .6s ease, opacity .5s ease;
   }
   .netcover.open{transform:translateY(-120%);opacity:0;pointer-events:none;}
+  /* Un tornillo en cada esquina de la tapa — hay que quitar los 4 con el
+     destornillador antes de que la tapa se abra sola. */
+  .screw{
+    position:absolute;width:11%;height:15%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .3s, transform .3s;z-index:9;
+  }
+  .screw img{width:85%;height:85%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+  .screw#screw-tl{left:4%;top:6%;}
+  .screw#screw-tr{right:4%;top:6%;}
+  .screw#screw-bl{left:4%;bottom:6%;}
+  .screw#screw-br{right:4%;bottom:6%;}
+  .screw.removed{opacity:0;transform:rotate(90deg) scale(.4);pointer-events:none;}
   .toolboxVent{
     position:absolute;right:6%;top:6%;width:13%;height:8%;background:#120f0c;border:1px solid #8c7c6a;border-radius:3px;
     background-image:repeating-linear-gradient(90deg,#383128 0 10%,#120f0c 10% 20%);box-shadow:0 0 8px rgba(140,155,135,.15);
@@ -339,15 +410,17 @@
   .toolbox-item{
     position:absolute;right:7%;top:16%;width:4.5%;height:3.5%;border-radius:3px;
     background:linear-gradient(160deg,#e0c878,#8c6a3a);box-shadow:0 0 12px rgba(224,200,120,.8);
-    display:none;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;z-index:9;
+    display:none;align-items:center;justify-content:center;cursor:pointer;z-index:9;
+    overflow:visible;
   }
   .toolbox-item.show{display:flex;}
+  .toolbox-item img{width:170%;height:170%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;}
 
   .node-chip{
     position:absolute;width:7.5%;height:10%;border-radius:5px;cursor:grab;z-index:20;
     border:2px solid rgba(255,255,255,.15);box-shadow:0 6px 14px rgba(0,0,0,.6);
     touch-action:none;transition:box-shadow .2s;display:flex;align-items:center;justify-content:center;
-    font-size:.7rem;font-family:monospace;background:#181410;
+    font-size:1.7rem;font-family:monospace;background:#181410;
     user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
   }
   .node-chip:active{cursor:grabbing;}
@@ -357,24 +430,24 @@
   .node-chip.n3{color:#ff9d6c;} .node-chip.n4{color:#c98cff;}
 
   .chiplabel{
-    position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);white-space:normal;
-    max-width:62px;text-align:center;line-height:1.1;
-    font-size:.5rem;color:#d9d2c2;background:rgba(5,8,15,.85);padding:1px 4px;border-radius:3px;
+    position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);white-space:normal;
+    max-width:90px;text-align:center;line-height:1.2;
+    font-size:.82rem;font-weight:600;color:#d9d2c2;background:rgba(5,8,15,.85);padding:2px 7px;border-radius:4px;
     pointer-events:none;letter-spacing:.2px;font-family:'Segoe UI',sans-serif;z-index:21;
   }
   .hublabel{
     position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);white-space:normal;
-    max-width:62px;text-align:center;line-height:1.1;
-    font-size:.5rem;color:#9ab57a;background:rgba(5,8,15,.8);padding:1px 4px;border-radius:3px;
+    max-width:90px;text-align:center;line-height:1.2;
+    font-size:.8rem;font-weight:600;color:#9ab57a;background:rgba(5,8,15,.8);padding:2px 7px;border-radius:4px;
     pointer-events:none;letter-spacing:.2px;font-family:'Segoe UI',sans-serif;
   }
   .hubexamples{
     position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);white-space:normal;
-    max-width:120px;text-align:center;line-height:1.25;
-    font-size:.66rem;font-weight:600;color:#e7f0d8;background:rgba(135,160,95,.22);border:1px solid rgba(135,160,95,.45);
-    padding:4px 9px;border-radius:5px;pointer-events:none;letter-spacing:.2px;font-family:'Segoe UI',sans-serif;
+    max-width:150px;text-align:center;line-height:1.3;
+    font-size:.85rem;font-weight:600;color:#e7f0d8;background:rgba(135,160,95,.22);border:1px solid rgba(135,160,95,.45);
+    padding:5px 11px;border-radius:5px;pointer-events:none;letter-spacing:.2px;font-family:'Segoe UI',sans-serif;
   }
-  .tokenhub .hubexamples{bottom:-26px;font-size:.74rem;max-width:140px;padding:5px 10px;}
+  .tokenhub .hubexamples{font-size:.9rem;max-width:160px;padding:6px 12px;}
   /* Room 3 nodes: hublabel + hubexamples used to be two independently
      bottom-anchored elements. When the examples text wrapped to 2 lines
      (e.g. "Bitcoin · Ethereum"), the box grew upward and covered the
@@ -398,7 +471,7 @@
   #scn-room3{background:radial-gradient(ellipse at 50% 30%,#181511 0%,#0d0b08 70%,#050403 100%);}
   .breaker{
     position:absolute;left:5%;top:10%;width:9%;height:14%;background:linear-gradient(160deg,#2e2821,#1a1713);
-    border:2px solid #5b5144;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+    border:2px solid #5b5144;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;
   }
   .breaker .lever{transition:transform .3s ease;}
   .breaker.on{border-color:var(--accent);box-shadow:0 0 14px rgba(135,160,95,.4);}
@@ -411,7 +484,7 @@
     background:rgba(255,255,255,.02);
   }
   .hub.filled{border-style:solid;border-color:var(--accent2);}
-  .hub .hubicon{font-size:1.3rem;opacity:.6;}
+  .hub .hubicon{font-size:2.1rem;opacity:.6;}
 
   /* ============ ROOM 4 SCENE: CONTRACT TERMINAL ============ */
   #scn-room4{background:radial-gradient(ellipse at 50% 30%,#16140f 0%,#0d0b08 70%,#050403 100%);}
@@ -427,8 +500,8 @@
   .filecab .fdrawer .fhandle{position:absolute;right:8%;top:50%;width:8%;height:30%;background:#120f0c;border-radius:2px;transform:translateY(-50%);}
   .note-item{
     position:absolute;width:5%;height:6%;border-radius:2px;background:linear-gradient(160deg,#f0e6c8,#cdbf94);
-    box-shadow:0 0 10px rgba(232,196,104,.6);display:none;align-items:center;justify-content:center;font-size:.6rem;
-    cursor:pointer;z-index:9;color:#2a2410;
+    box-shadow:0 0 10px rgba(232,196,104,.6);display:none;align-items:center;justify-content:center;font-size:1.4rem;
+    cursor:pointer;z-index:9;color:#2a2410;overflow:visible;
   }
   .note-item.show{display:flex;}
   .termbox{
@@ -443,26 +516,76 @@
     background:rgba(140,155,135,.12);border:1px solid var(--accent2);color:var(--accent2);border-radius:5px;
     padding:3px 10px;font-size:.7rem;cursor:pointer;
   }
-  .cables{position:absolute;left:30%;bottom:14%;width:40%;height:18%;display:flex;justify-content:space-around;align-items:flex-end;}
-  .cable{position:relative;width:8%;height:60%;border-radius:6px 6px 2px 2px;cursor:pointer;transition:filter .2s;}
-  .cable:hover{filter:brightness(1.3);}
+  /* Caja de cables: aparece después de armar el contrato. Al tocarla, el
+     jugador "se acerca" a un acercamiento en pantalla con los cables
+     grandes y separados, en vez de tenerlos siempre amontonados en la
+     escena chica donde sus etiquetas no entraban. */
+  /* Señal de advertencia eléctrica: amarilla con borde negro y un rayo,
+     como las señales reales de "riesgo eléctrico" junto a un tablero. */
+  .cableBox{
+    position:absolute;left:50%;bottom:13%;transform:translateX(-50%);
+    width:8%;height:11%;display:none;align-items:center;justify-content:center;
+    cursor:pointer;background:#f0c419;
+    border:4px solid #1a1a1a;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.5);
+    z-index:15;
+  }
+  .cableBox.show{display:flex;}
+  .cableBox::after{
+    content:"⚡";font-size:2.2rem;color:#1a1a1a;line-height:1;
+    text-shadow:0 1px 0 rgba(255,255,255,.3);
+  }
+  .cableCloseupBackdrop{
+    display:none;position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:85;
+  }
+  .cableCloseupBackdrop.show{display:block;}
+
+  .cables{
+    display:none;position:absolute;left:10%;top:50%;width:80%;height:56%;
+    transform:translateY(-50%);
+    background:rgba(8,10,14,.97);border:2px solid rgba(140,155,135,.45);border-radius:14px;
+    box-shadow:0 24px 60px rgba(0,0,0,.65);z-index:90;
+    flex-direction:row;justify-content:space-evenly;align-items:flex-end;
+    padding:48px 30px 60px;
+  }
+  .cables.show{display:flex;}
+  .closeCloseupBtn{
+    position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;
+    background:rgba(255,255,255,.1);color:#cfc8b6;border:none;font-size:.9rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;z-index:6;
+  }
+  .closeCloseupBtn:hover{background:rgba(255,255,255,.22);}
+  /* Forma de tubo/cable real: extremos redondeados + una franja de brillo
+     vertical para sugerir un cable cilíndrico, en vez de una barra plana. */
+  .cable{
+    position:relative;width:7%;height:100%;border-radius:50px;cursor:pointer;
+    transition:filter .2s;box-shadow:inset 0 0 0 2px rgba(0,0,0,.35);
+  }
+  .cable::before{
+    content:"";position:absolute;top:6%;bottom:6%;left:26%;width:22%;
+    background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05));
+    border-radius:30px;pointer-events:none;
+  }
+  .cable::after{
+    content:"";position:absolute;left:50%;top:-10px;width:70%;height:14px;
+    transform:translateX(-50%);background:#2a2a2a;border-radius:6px;
+  }
+  .cable:hover{filter:brightness(1.25);}
   .cable.red{background:linear-gradient(180deg,#ff5d6c,#7a1f28);}
   .cable.blue{background:linear-gradient(180deg,#5ec8ff,#1f4f7a);}
   .cable.green{background:linear-gradient(180deg,#3ddc97,#1c6b48);}
   .cable.cut{opacity:.25;pointer-events:none;}
   .wirelabel{
-    position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);white-space:normal;
-    max-width:108px;text-align:center;line-height:1.15;
-    font-size:.5rem;color:#d9d2c2;background:rgba(5,8,15,.85);padding:2px 5px;border-radius:3px;
+    position:absolute;bottom:-34px;left:50%;transform:translateX(-50%);white-space:normal;
+    max-width:140px;text-align:center;line-height:1.25;
+    font-size:.8rem;font-weight:600;color:#d9d2c2;background:rgba(5,8,15,.85);padding:3px 8px;border-radius:4px;
     pointer-events:none;letter-spacing:.2px;font-family:'Segoe UI',sans-serif;z-index:21;
   }
   .termbox.armed{border-color:var(--accent2);box-shadow:inset 0 0 14px rgba(0,0,0,.8),0 0 12px rgba(140,155,135,.6);}
   .termbox.armed input{border-color:var(--accent2);}
-  /* Indicación persistente de qué hacer con los cables, visible recién
-     cuando el contrato queda armado (antes no tiene sentido mostrarla). */
+  /* Indicación de qué hacer con los cables, dentro del acercamiento. */
   .cablesHint{
-    position:absolute;left:50%;top:46%;transform:translateX(-50%);
-    max-width:46%;text-align:center;font-size:.72rem;line-height:1.35;color:#cdd8b8;
+    position:absolute;left:50%;top:10px;transform:translateX(-50%);
+    max-width:78%;text-align:center;font-size:.72rem;line-height:1.35;color:#cdd8b8;
     background:rgba(135,160,95,.16);border:1px solid rgba(135,160,95,.4);
     border-radius:6px;padding:7px 14px;opacity:0;transition:opacity .3s;pointer-events:none;
   }
@@ -479,22 +602,31 @@
   }
   .crate .qrpattern span{background:#3a2c18;}
   .crate .qrpattern span.on{background:var(--gold);}
+  /* La puerta de la bóveda debe cubrir TODO el puzzle de atrás (casilleros
+     + sus etiquetas de ejemplos), no solo los casilleros — si no, las
+     etiquetas se asoman por los bordes antes de que la bóveda se abra. */
   .vaultdoor{
-    position:absolute;left:32%;top:14%;width:36%;height:60%;background:linear-gradient(160deg,#2e2821,#1a1713);
+    position:absolute;left:17%;top:13%;width:66%;height:58%;background:linear-gradient(160deg,#2e2821,#1a1713);
     border:3px solid #8c7c6a;border-radius:6px;transition:transform .6s ease, opacity .5s ease;z-index:8;
   }
   .vaultdoor.open{transform:translateX(-130%);opacity:0;pointer-events:none;}
-  .tokenslots{position:absolute;left:34%;top:18%;width:32%;height:50%;display:flex;justify-content:space-around;align-items:center;}
+  /* Casilleros más separados horizontalmente (antes muy juntos en una franja
+     angosta), para que las etiquetas de ejemplos de cada uno no se peguen
+     con las del casillero vecino. */
+  .tokenslots{position:absolute;left:20%;top:18%;width:60%;height:50%;display:flex;justify-content:space-around;align-items:center;}
   .tokenhub{
     position:relative;width:26%;height:70%;border:2px dashed #5b5144;border-radius:8px;display:flex;align-items:center;justify-content:center;
     background:rgba(255,255,255,.02);font-size:1.1rem;
   }
+  /* Las etiquetas de ejemplos van ARRIBA del casillero (no abajo): debajo
+     quedaban justo donde aparecen las fichas para arrastrar, tapándose. */
+  .tokenhub .nodeTextWrap{top:auto;bottom:100%;margin-top:0;margin-bottom:8px;}
   .tokenhub.filled{border-style:solid;border-color:var(--accent2);}
   .tokenhub.filled .hubicon{opacity:1;}
   .token-chip{
     position:absolute;width:6.5%;height:9%;border-radius:50%;cursor:grab;z-index:20;
     border:2px solid rgba(255,255,255,.2);box-shadow:0 6px 14px rgba(0,0,0,.6);touch-action:none;
-    display:flex;align-items:center;justify-content:center;font-size:.9rem;
+    display:flex;align-items:center;justify-content:center;font-size:1.6rem;
   }
   .token-chip:active{cursor:grabbing;}
   .token-chip.dragging{z-index:60;box-shadow:0 0 22px rgba(232,196,104,.7);}
@@ -502,7 +634,7 @@
   .token-chip.t0{background:linear-gradient(160deg,#f0e6c8,#cdbf94);}
   .token-chip.t1{background:linear-gradient(160deg,#a8bfa0,#5f6b54);}
   .token-chip.t2{background:linear-gradient(160deg,#b896c0,#5b4868);}
-  .tokenhub .hubicon{font-size:1.3rem;opacity:.6;}
+  .tokenhub .hubicon{font-size:2.1rem;opacity:.6;}
 
   /* ============ ROOM 6 SCENE: NFT FORENSICS LAB ============ */
   #scn-room6{background:radial-gradient(ellipse at 50% 30%,#16140f 0%,#0d0b08 70%,#050403 100%);}
@@ -574,8 +706,8 @@
   /* ============ INVENTORY BAR ============ */
   #invBar{
     position:absolute;left:50%;bottom:2%;transform:translateX(-50%);z-index:46;
-    display:flex;gap:8px;background:rgba(5,8,15,.55);border:1px solid rgba(140,155,135,.25);
-    border-radius:10px;padding:6px 10px;backdrop-filter:blur(2px);min-height:34px;
+    display:flex;gap:8px;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.25);
+    border-radius:10px;padding:6px 10px;min-height:34px;
   }
   .inv-item{
     min-width:38px;height:42px;border-radius:6px;background:#1a1713;border:1px solid #413a31;
@@ -583,6 +715,7 @@
     padding:3px 6px;gap:1px;
   }
   .inv-item .inv-ic{font-size:.95rem;line-height:1;}
+  .inv-item .inv-ic img{width:20px;height:20px;object-fit:contain;vertical-align:middle;}
   .inv-item .inv-nm{font-size:.5rem;line-height:1.1;color:#c9bfa8;white-space:nowrap;letter-spacing:.2px;}
   .inv-item.sel{border-color:var(--accent2);box-shadow:0 0 10px rgba(140,155,135,.7);}
 
@@ -593,110 +726,210 @@
   .examine-hint.show{opacity:1;}
 
   #backToHall, .backBtn{
-    position:absolute;top:44px;left:14px;z-index:47;background:rgba(5,8,15,.6);border:1px solid rgba(140,155,135,.3);
+    position:absolute;top:44px;left:14px;z-index:47;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.3);
     color:var(--accent2);border-radius:16px;padding:5px 12px;font-size:.7rem;cursor:pointer;
   }
-  #backToHall:hover, .backBtn:hover{background:rgba(140,155,135,.15);}
+  #backToHall:hover, .backBtn:hover{background:rgba(30,38,28,.95);}
 
   /* ============ MODO CLARO ============
-     El default del juego es oscuro (ambientación de "hospital digital
-     invadido"). El modo claro re-skinea los paneles de texto/menús (HUD,
-     overlays, glosario, historial, objetivo, subtítulos, inventario) para
-     quien lo prefiera leer en claro; las escenas de cada sala mantienen su
-     estética oscura porque son arte ambiental, no texto de lectura. */
-  body.light{background:#e8e4d8;}
-  body.light #gameRoot{background:#e8e4d8;}
-  body.light #hudGlossary, body.light #hudHistory, body.light #hudTheme{
-    background:rgba(255,255,255,.85);color:#3a3526;border-color:rgba(120,110,90,.45);
+     Regla simple y consistente: TODO el texto en negro puro (#000) para
+     máximo contraste de lectura, y los "objetos" de interfaz (botones,
+     pastillas, insignias, casillas del inventario) en gris claro opaco
+     en vez de blanco o tintes de color — nada de fondos traslúcidos, así
+     ningún botón deja ver el escenario detrás y se confunde con un objeto. */
+  body.light{background:#a9d49a;}
+  body.light #gameRoot{background:#a9d49a;}
+  body.light #hudGlossary, body.light #hudHistory, body.light #hudTheme,
+  body.light #hudTimer, body.light #objectiveBar, body.light #hintBtn,
+  body.light #backToHall, body.light .backBtn, body.light #invBar,
+  body.light .inv-item, body.light #subtitleBox, body.light #introName,
+  body.light #glossarySearch{
+    background:#d6d6d6;border-color:#a8a8a8;
   }
-  body.light #hudGlossary:hover, body.light #hudHistory:hover, body.light #hudTheme:hover{
-    background:rgba(120,110,90,.15);
+  body.light #hudGlossary:hover, body.light #hudHistory:hover, body.light #hudTheme:hover,
+  body.light #backToHall:hover, body.light .backBtn:hover{
+    background:#c4c4c4;
   }
-  body.light #hudTimer{background:rgba(255,255,255,.85);color:#3a3526;border-color:rgba(120,110,90,.3);}
-  body.light #hudLives{text-shadow:0 0 6px rgba(255,255,255,.7);}
-  body.light #objectiveBar{background:rgba(255,255,255,.94);color:#241f15;border-left-color:#a9925e;border-color:rgba(0,0,0,.08);}
-  body.light #hintBtn{background:rgba(255,250,235,.92);border-color:rgba(180,140,40,.55);}
-  body.light #backToHall, body.light .backBtn{background:rgba(255,255,255,.88);color:#3f6b2c;border-color:rgba(63,107,44,.4);}
-  body.light #backToHall:hover, body.light .backBtn:hover{background:rgba(63,107,44,.12);}
-  body.light #subtitleBox{background:rgba(255,255,255,.94);border-color:rgba(0,0,0,.1);}
-  body.light #subtitleBox .who{color:#5c6b52;text-shadow:none;}
-  body.light #subtitleBox .txt{color:#241f15;text-shadow:none;}
-  body.light #subtitleClose{background:rgba(0,0,0,.08);color:#3a3526;}
-  body.light #subtitleClose:hover{background:rgba(0,0,0,.16);}
-  body.light .ui-overlay{background:rgba(238,235,226,.96);backdrop-filter:blur(3px);}
-  body.light .ui-box h1{color:#3f6b2c;text-shadow:none;}
-  body.light .ui-box .sub{color:#5c6b52;}
-  body.light .ui-box p{color:#534c3e;}
-  body.light .examplesBox{background:rgba(63,107,44,.06);border-color:rgba(63,107,44,.25);}
-  body.light .examplesBox .exTitle{color:#4a6b3a;}
-  body.light .examplesBox li{color:#3a352b;}
-  body.light .gbtn{background:linear-gradient(160deg,#eaf3e2,#cfe6c0);color:#234417;border-color:#3f6b2c;}
-  body.light .gbtn:hover{background:#3f6b2c;color:#fff;}
-  body.light .gbtn.secondary{color:#4a6b3a;border-color:#4a6b3a;}
-  body.light #introName{background:#fff;color:#241f15;border-color:#c9bfa8;}
-  body.light .glossaryTerm{background:rgba(63,107,44,.06);border-color:rgba(63,107,44,.25);}
-  body.light .glossaryTerm .gTitle{color:#2f5722;}
-  body.light .glossaryTerm .gDef{color:#3a352b;}
-  body.light .glossaryEmpty{color:#7a7363;}
-  body.light #glossarySearch{background:rgba(0,0,0,.04);color:#241f15;border-color:rgba(63,107,44,.3);}
-  body.light .nucleoRow{border-bottom-color:rgba(0,0,0,.08);}
-  body.light .nucleoRow .nName{color:#6b6452;}
-  body.light .nucleoRow .nStat{color:#2f5722;}
-  body.light #invBar{background:rgba(255,255,255,.85);border-color:rgba(120,110,90,.3);}
-  body.light .inv-item{background:#f3f0e8;border-color:#c9bfa8;}
-  body.light .inv-item .inv-nm{color:#534c3e;}
-  body.light .inv-item.sel{border-color:#3f6b2c;box-shadow:0 0 10px rgba(63,107,44,.5);}
-  body.light .cablesHint{background:rgba(63,107,44,.1);color:#2f5722;border-color:rgba(63,107,44,.4);}
+  body.light #hudGlossary, body.light #hudHistory, body.light #hudTheme,
+  body.light #hudTimer, body.light #hudLives, body.light #objectiveBar,
+  body.light #backToHall, body.light .backBtn, body.light #subtitleBox .who,
+  body.light #subtitleBox .txt, body.light #subtitleClose, body.light .ui-box h1,
+  body.light .ui-box .sub, body.light .ui-box p, body.light .examplesBox .exTitle,
+  body.light .examplesBox li, body.light .gbtn, body.light #introName,
+  body.light .glossaryTerm .gTitle, body.light .glossaryTerm .gDef,
+  body.light .glossaryEmpty, body.light #glossarySearch, body.light .nucleoRow .nName,
+  body.light .nucleoRow .nStat, body.light .inv-item .inv-nm, body.light .inv-item .inv-ic,
+  body.light #objectiveToggle{
+    color:#000;text-shadow:none;
+  }
+  body.light #subtitleClose{background:#c4c4c4;}
+  body.light #subtitleClose:hover{background:#b0b0b0;}
+  body.light .ui-overlay{background:rgba(225,225,225,.97);backdrop-filter:blur(3px);}
+  body.light .examplesBox{background:#e6e6e6;border-color:#b8b8b8;}
+  body.light .gbtn{background:#d6d6d6;border-color:#6b6b6b;}
+  body.light .gbtn:hover{background:#bdbdbd;}
+  body.light .gbtn.secondary{border-color:#6b6b6b;}
+  /* El Historial usa <b>/<div> simples dentro de .glossaryTerm (no las
+     clases .gTitle/.gDef del Glosario), así que sin esto heredaban el color
+     claro del texto en modo oscuro y se perdían contra el fondo aclarado. */
+  body.light .glossaryTerm{background:#e6e6e6;border-color:#b8b8b8;color:#000;}
+  body.light .nucleoRow{border-bottom-color:#c4c4c4;}
+  body.light .inv-item{background:#d6d6d6;}
+  body.light .inv-item.sel{border-color:#000;box-shadow:0 0 8px rgba(0,0,0,.35);}
+  body.light #objectiveBar{border-left-color:#888;}
+
+  /* El modo claro también cambia las escenas de cada sala (pasillo, salas
+     1-6, puzzle final), no solo los menús. Cada sala tiene decenas de
+     colores propios (paredes, muebles, cables, LEDs...) hechos a mano para
+     verse como un cuarto oscuro; en vez de redefinir cada uno por separado,
+     se invierte la paleta completa de la escena con un filtro CSS — así
+     cualquier elemento nuevo que se agregue a una sala queda cubierto
+     automáticamente por el modo claro sin tener que recordar agregarlo aquí. */
+  body.light #stage{background:#a9d49a;}
+  body.light .scene{filter:invert(1) hue-rotate(180deg);}
+  body.light #stage::before{opacity:.35;}
+  body.light #stage::after{background:radial-gradient(circle at 50% 45%, transparent 60%, rgba(0,0,0,.1) 100%);}
+  /* Tinte verde parejo sobre toda la pantalla de juego en modo claro,
+     encima del escenario ya aclarado, para que se vea claramente verde
+     en vez de un gris/crema neutro. Sin z-index a propósito: al ser un
+     ::before se pinta primero (como si fuera el hijo más antiguo de la
+     escena), así que cualquier objeto/etiqueta agregado después —estático
+     o por JS— queda automáticamente por encima, sin tinte adicional. */
+  body.light .scene::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:rgba(40,170,40,.32);mix-blend-mode:multiply;
+  }
+
+  /* La tarjeta verde (Web 1.0, cardA) usa un verde exacto definido a mano
+     en vez de depender del aclarado automático del filtro — para esta sí
+     se cancela la inversión y se fuerza el color pedido. */
+  /* La pantalla del monitor (no el fondo general del juego) es la que debe
+     verse verde, con el mismo color exacto que el bloque de Web 1.0. */
+  body.light .monitor.on .screen{
+    filter:invert(1) hue-rotate(180deg);
+    background:#41A61F;
+  }
+  body.light .monitor::before{filter:invert(1) hue-rotate(180deg);}
+  body.light .monitor .screen .waitIcon{color:#fff;}
+
+  /* El marco de cada tarjeta (10% alrededor del logo) conserva su color
+     de acento pedido; el logo en sí va sobre fondo blanco en ambos modos. */
+  body.light .era-card.cardA{filter:invert(1) hue-rotate(180deg);background:#fff;border:4px solid #41A61F;}
+  body.light .era-card.cardB{filter:invert(1) hue-rotate(180deg);background:#fff;border:4px solid #FF52BD;}
+  body.light .era-card.cardC{filter:invert(1) hue-rotate(180deg);background:#fff;border:4px solid #529DFF;}
+
+  /* Las tarjetas/bloques (eras de la web, pasos del proceso, fichas de
+     token, bloques de hash) NO cancelan el filtro — se dejan pasar por la
+     misma inversión que el resto del escenario, que aclara su fondo oscuro
+     conservando su tono de color (verde sigue verde, morado sigue morado,
+     solo más claro) en vez de quedar negros/oscuros como antes. */
+
+  /* La letra coleccionable de cada sala: la única que sí debe "resaltar"
+     de forma llamativa, así que en vez de solo restaurar su dorado original
+     se le da un color vivo propio + una placa circular de fondo para que
+     se note claramente como objeto para recoger. */
+  body.light .fragmentGlow{
+    filter:invert(1) hue-rotate(180deg);
+    color:#fff;
+    background:linear-gradient(145deg,#ff9d3d 0%,#ff7a1a 55%,#e85f00 100%);
+    border-color:#ff7a1a;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,.3),
+      inset 0 2px 3px rgba(255,255,255,.4),
+      inset 0 -3px 6px rgba(0,0,0,.25),
+      0 0 26px rgba(255,122,26,.7);
+  }
+
+  /* Las letras de la palabra BLOQUE en el puzzle final: color saturado y
+     bien visible en vez del dorado apagado (--gold) que usa el modo oscuro. */
+  body.light .letterslot{
+    filter:invert(1) hue-rotate(180deg);
+    color:#e8920a;
+  }
+
+  /* El encabezado del puzzle final necesita quedar legible sí o sí, así que
+     se cancela el filtro y se fuerza un color oscuro saturado en vez del
+     dorado original (que se perdía contra el fondo ya aclarado). */
+  body.light .finalHeading{
+    filter:invert(1) hue-rotate(180deg);
+    color:#1f6b2f;
+  }
+
+  /* Pero las etiquetas de texto (Nodo N, ejemplos, nombres de cable, número
+     de casillero...) estaban diseñadas para verse pálidas sobre un fondo
+     OSCURO — al cancelar el filtro vuelven a ese mismo tono pálido, que
+     sobre el escenario ya aclarado se pierde casi por completo. En vez de
+     un chip gris oscuro, se usa un color medio-saturado y claro (no negro)
+     con texto negro encima, para que destaquen sin verse apagadas. */
+  body.light .chiplabel, body.light .hublabel, body.light .hubexamples,
+  body.light .wirelabel, body.light .slotnum, body.light .hashRef,
+  body.light .cablesHint, body.light .doornum{
+    filter:invert(1) hue-rotate(180deg);
+    background:#7fc98a; color:#000; border-color:#3f8a4f;
+  }
+  body.light .hashRef #hashRefValue{color:#000;}
+
+  /* El panel de acercamiento de cables (Sala 4) es un modal, no arte de
+     la sala — se cancela el filtro para que conserve su estilo oscuro
+     diseñado a propósito, igual en claro y oscuro. */
+  body.light .cables, body.light .cableCloseupBackdrop,
+  body.light .closeCloseupBtn, body.light .cable, body.light .cableBox{
+    filter:invert(1) hue-rotate(180deg);
+  }
+
+  /* Los casilleros vacíos (líneas punteadas) y el ícono de "candado/red"
+     también quedaban casi invisibles al heredar el color pálido pensado
+     para fondo oscuro — se cancela el filtro y se usa el mismo verde
+     medio-saturado del resto de los acentos en modo claro (no negro/gris). */
+  body.light .hub, body.light .tokenhub, body.light .slot, body.light .hexsocket{
+    filter:invert(1) hue-rotate(180deg);
+    border-color:#3f8a4f;
+  }
+  body.light .hubicon{
+    filter:invert(1) hue-rotate(180deg);
+    opacity:1;
+  }
 
   /* ============ RESPONSIVE: TABLET / MÓVIL ============
-     En el stage 9:16 (retrato) la altura disponible es mucho mayor que el
-     ancho, así que cualquier pieza/casillero dimensionado con height:% se ve
-     desproporcionadamente alto y angosto ("alargado"). La solución no es
-     achicar todo, sino fijar un aspect-ratio en cada pieza/casillero clave
-     para que mantengan una forma de tarjeta razonable sin importar la altura
-     del contenedor, y agrandar los botones a un tamaño cómodo para el dedo
-     (mínimo ~44px de alto, el estándar táctil). */
+     Gracias a la rotación forzada (arriba), el celular siempre muestra el
+     juego en proporción horizontal 16:9 igual que en escritorio — así que
+     ya no hace falta deformar casilleros/fichas. Aquí solo se agrandan los
+     botones y textos del HUD a un tamaño cómodo para el dedo (mínimo ~44px
+     de alto, el estándar táctil). */
   @media(max-width:700px){
-    #objectiveBar{max-width:64%;font-size:.7rem;top:64px;padding:7px 12px;}
-    #hud{gap:5px;padding:8px 12px;}
-    #hudGlossary, #hudHistory, #hudTheme{padding:6px 11px;font-size:.7rem;}
-    #hudTimer{font-size:.7rem;padding:4px 8px;}
-    #hintBtn{width:46px;height:46px;font-size:1.2rem;}
-    #hintBadge{min-width:19px;height:19px;font-size:.68rem;}
-    #backToHall, .backBtn{top:64px;left:10px;padding:8px 16px;font-size:.78rem;}
-    .ui-box h1{font-size:1.3rem;}
-    .ui-box p{font-size:.85rem;}
-    .gbtn{padding:13px 22px;font-size:.92rem;min-height:44px;}
+    /* La barra de objetivo y el botón de regreso se ubican DEBAJO de la
+       fila del HUD (no en la misma esquina) para que nunca se solapen con
+       los botones de Glosario/Historial/Tema ni con los corazones. */
+    #hud{gap:5px;padding:6px 10px;flex-wrap:nowrap;}
+    #hudGlossary, #hudHistory, #hudTheme{padding:6px 11px;font-size:.68rem;}
+    #hudTimer{font-size:.68rem;padding:4px 8px;}
+    #objectiveBar{max-width:46%;font-size:.66rem;top:50px;right:10px;padding:6px 11px;}
+    #hintBtn{width:42px;height:42px;font-size:1.1rem;}
+    #hintBadge{min-width:18px;height:18px;font-size:.65rem;}
+    #backToHall, .backBtn{top:50px;left:10px;padding:7px 14px;font-size:.72rem;}
+    .ui-box h1{font-size:1.25rem;}
+    .ui-box p{font-size:.82rem;}
+    .gbtn{padding:12px 20px;font-size:.88rem;min-height:42px;}
     #invBar{
-      max-width:94%;overflow-x:auto;-webkit-overflow-scrolling:touch;
-      justify-content:flex-start;gap:10px;padding:8px 12px;
+      max-width:92%;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      justify-content:flex-start;gap:8px;padding:6px 10px;
     }
-    .inv-item{min-width:48px;height:52px;flex:0 0 auto;}
-    .inv-item .inv-ic{font-size:1.2rem;}
-    #subtitleBox{max-width:88%;}
-    #subtitleBox .txt{font-size:.9rem;}
-
-    /* Casilleros y fichas: forzar una proporción de "tarjeta" fija en vez de
-       depender de %height del stage portrait, que las estiraba muchísimo. */
-    .netpanel .hexsocket{height:auto;aspect-ratio:.9/1;}
-    .slot{height:auto;aspect-ratio:.85/1.05;}
-    .hub{height:auto;aspect-ratio:.78/1;}
-    .tokenhub{height:auto;aspect-ratio:.78/1;}
-    .era-card{width:15%;height:auto;aspect-ratio:.78/1;}
-    .node-chip{width:16%;height:auto;aspect-ratio:1/1;font-size:.9rem;}
-    .token-chip{width:14%;height:auto;aspect-ratio:1/1;font-size:1.1rem;}
-    .slotnum{width:20px;height:20px;font-size:.68rem;}
+    .inv-item{min-width:44px;height:46px;flex:0 0 auto;}
+    .inv-item .inv-ic{font-size:1.1rem;}
+    #subtitleBox{max-width:80%;}
+    #subtitleBox .txt{font-size:.85rem;}
 
     .nucleoRow{flex-direction:column;gap:2px;padding:7px 2px;}
     .nucleoRow .nStat{text-align:left;}
-  }
-  @media(max-width:420px){
-    #objectiveBar{max-width:72%;font-size:.62rem;padding:5px 10px;top:78px;}
-    #backToHall, .backBtn{top:78px;}
-    #hudGlossary, #hudHistory, #hudTheme{font-size:.64rem;padding:5px 9px;}
-    #hudTimer{font-size:.64rem;padding:4px 7px;}
-    .ui-box h1{font-size:1.1rem;letter-spacing:1.5px;}
-    .ui-box .sub{font-size:.66rem;}
+
+    /* En pantallas chicas el stage es más pequeño en píxeles, pero el
+       tamaño de fuente de los íconos (en rem) no se achicaba con él — el
+       ícono terminaba siendo más grande que su propia tarjeta/cubo y se
+       salía del borde. Se agranda un poco la tarjeta y se achica el ícono
+       para que quede contenido en ambos casos. */
+    .era-card{width:9%;height:15%;}
+    .node-chip{width:11%;height:15%;font-size:1.3rem;}
+    .token-chip{width:10%;height:13%;font-size:1.3rem;}
   }
 
   /* En pantallas táctiles, evita selección de texto y gestos del navegador

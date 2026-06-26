@@ -21,7 +21,10 @@
     </div>
 
     <!-- Objetivo actual -->
-    <div id="objectiveBar">🎯 <span id="objectiveText">Explora el pasillo.</span></div>
+    <div id="objectiveBar">
+      <span id="objectiveToggle" title="Minimizar/expandir indicación">▸</span>
+      <span id="objectiveContent">🎯 <span id="objectiveText">Explora el pasillo.</span></span>
+    </div>
 
     <!-- Botón de pista -->
     <div id="hintBtn" title="Pista">💡<span id="hintBadge">3</span></div>
@@ -89,12 +92,17 @@
       <div class="floorline"></div>
 
       <div class="netpanel" id="netHexes"></div>
-      <div class="netcover hotspot glow-pulse" id="hs-netcover"></div>
+      <div class="netcover" id="hs-netcover">
+        <div class="screw" id="screw-tl" data-corner="tl"><img src="img/screw.png" alt=""></div>
+        <div class="screw" id="screw-tr" data-corner="tr"><img src="img/screw.png" alt=""></div>
+        <div class="screw" id="screw-bl" data-corner="bl"><img src="img/screw.png" alt=""></div>
+        <div class="screw" id="screw-br" data-corner="br"><img src="img/screw.png" alt=""></div>
+      </div>
 
       <div class="toolboxVent hotspot glow-pulse" id="hs-toolbox">
         <div class="grille"></div>
       </div>
-      <div class="toolbox-item" id="toolboxItem">🧰</div>
+      <div class="toolbox-item" id="toolboxItem"><img src="img/screwdriver.png" alt=""></div>
     </div>
 
     <!-- ===== ROOM 3 SCENE: NETWORK MAP ===== -->
@@ -127,8 +135,12 @@
         <button id="termBtn">Ejecutar</button>
       </div>
 
-      <div class="cablesHint" id="cablesHint">✂ Corta los cables que NO sean la fuente verificada por el oráculo. Deja conectado solo el correcto.</div>
-      <div class="cables">
+      <div class="cableBox hotspot glow-pulse" id="hs-cablebox" title="Caja de cables"></div>
+
+      <div class="cableCloseupBackdrop" id="cableCloseupBackdrop"></div>
+      <div class="cables" id="room4Cables">
+        <button class="closeCloseupBtn" id="closeCableCloseup" title="Cerrar">✕</button>
+        <div class="cablesHint" id="cablesHint">✂ Corta los cables que NO sean la fuente verificada por el oráculo. Deja conectado solo el correcto.</div>
         <div class="cable red" data-c="red"><span class="wirelabel">Conectado a una API externa</span></div>
         <div class="cable blue" data-c="blue"><span class="wirelabel">Conectado a un servidor centralizado</span></div>
         <div class="cable green" data-c="green"><span class="wirelabel">Conectado a un nodo oráculo</span></div>

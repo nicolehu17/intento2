@@ -456,6 +456,14 @@ function setObjective(text){
   const el = $("#objectiveText");
   if(el) el.textContent = text;
 }
+$("#objectiveToggle").onclick = (e)=>{
+  e.stopPropagation();
+  const bar = $("#objectiveBar");
+  const minimized = bar.classList.toggle("minimized");
+  // Expandido: la flecha apunta hacia adentro (▸, "guardar"/colapsar el texto).
+  // Minimizado: apunta hacia afuera (◂, volver a abrir).
+  $("#objectiveToggle").textContent = minimized ? "◂" : "▸";
+};
 
 /* ===================== POSICIONAMIENTO SIN SOLAPES (grid determinista) =====================
    Reemplaza los antiguos métodos de "posición aleatoria con reintento", que podían
@@ -531,6 +539,12 @@ function renderInventory(){
     };
     bar.appendChild(d);
   });
+  updateToolCursor();
+}
+/* El cursor se convierte en la herramienta seleccionada, para que se vea
+   como si el jugador la estuviera sosteniendo sobre la escena. */
+function updateToolCursor(){
+  $("#stage").classList.toggle("tool-screwdriver", selectedInvId==="toolkit");
 }
 
 /* ===================== PASILLO ===================== */
@@ -582,9 +596,9 @@ let room1Initialized = false;
 let drawerOpen=false, usbTaken=false, monitorOn=false, cardsSpawned=false;
 let slots = [null,null,null]; // card ids per slot
 const eraCards = [
-  {id:"cardA", cls:"cardA", order:0, examine:"Una pantalla estática, sin botones ni enlaces que tocar."},
-  {id:"cardB", cls:"cardB", order:1, examine:"Cientos de perfiles compartiendo contenido en la misma plataforma."},
-  {id:"cardC", cls:"cardC", order:2, examine:"Un registro encadenado, sin una sola empresa que lo controle."}
+  {id:"cardA", cls:"cardA", order:0, img:"img/era-web1.jpg", examine:"Una pantalla estática, sin botones ni enlaces que tocar."},
+  {id:"cardB", cls:"cardB", order:1, img:"img/era-web2.avif", examine:"Cientos de perfiles compartiendo contenido en la misma plataforma."},
+  {id:"cardC", cls:"cardC", order:2, img:"img/era-web3.png", examine:"Un registro encadenado, sin una sola empresa que lo controle."}
 ];
 
 function enterRoom1(){
@@ -657,6 +671,13 @@ function spawnEraCards(){
     el.style.left = x+"%";
     el.style.top = y+"%";
     el.dataset.cardId = card.id;
+    if(card.img){
+      const img = document.createElement("img");
+      img.src = card.img;
+      img.alt = "";
+      img.draggable = false;
+      el.appendChild(img);
+    }
     $("#scn-room1").appendChild(el);
     makeDraggable(el, card);
   });
@@ -802,6 +823,11 @@ function unlockCabinet(){
   subtitle("ARCA","¡Conexión correcta! El gabinete se abrió.",3200);
   setObjective("Recoge el fragmento de letra que apareció.");
   $("#fragmentB").textContent = roomLetterAssignment[1];
+  // Saca el fragmento del gabinete y lo centra en la pantalla, como objeto
+  // recogible flotante, en vez de dejarlo escondido dentro del mueble.
+  $("#fragmentB").style.left = "50%";
+  $("#fragmentB").style.top = "50%";
+  $("#scn-room1").appendChild($("#fragmentB"));
   setTimeout(()=>{
     $("#fragmentB").classList.add("show");
   }, 500);
@@ -950,6 +976,7 @@ function createDragPuzzle(opts){
 
 /* ===================== SALA 2: CONSOLA DE RED ===================== */
 let room2Initialized=false, toolboxOpen=false, toolkitTaken=false, netOpened=false, room2Puzzle=null;
+let room2ScrewsRemoved = 0;
 const room2Cards = [
   {id:"step0", cls:"n0", label:"⚡", name:"Transacción", order:0, examine:"Un impulso de datos saliendo de un monedero digital."},
   {id:"step1", cls:"n1", label:"🔍", name:"Validación", order:1, examine:"Nodos comparando que todo esté en orden antes de aceptar nada."},
@@ -979,44 +1006,57 @@ $("#toolboxItem").onclick = (e)=>{
   e.stopPropagation();
   if(toolkitTaken) return;
   toolkitTaken = true;
-  addItem("toolkit","🧰","Kit de herramientas");
+  addItem("toolkit","<img src='img/screwdriver.png' alt=''>","Destornillador");
   $("#toolboxItem").classList.remove("show");
   unpulse("#hs-toolbox");
-  pulse("#hs-netcover");
-  subtitle("ARCA","Un kit de herramientas. Podría abrir paneles atascados.",3000);
-  setObjective("Selecciona la herramienta y usa el panel de red.");
+  $$(".screw").forEach(s=> pulse(s));
+  subtitle("ARCA","Un destornillador. La tapa del panel tiene 4 tornillos, uno en cada esquina.",3400);
+  setObjective("Selecciona el destornillador y quita los 4 tornillos de la tapa.");
 };
-$("#hs-netcover").onclick = ()=>{
-  if(netOpened) return;
-  if(selectedInvId==="toolkit"){
-    netOpened = true;
-    $("#hs-netcover").classList.add("open");
-    unpulse("#hs-netcover");
-    removeItem("toolkit");
-    subtitle("ARCA","Cinco fragmentos de proceso quedaron sueltos. Reconéctalos en el orden correcto.",4200);
-    setObjective("Conecta los 5 fragmentos en el orden correcto del proceso.");
-    buildRoom2Hexes();
-    room2Puzzle = createDragPuzzle({
-      id:"r2", scene:"#scn-room2", slotSelector:"#netHexes .hexsocket", cardClass:"node-chip",
-      cards: room2Cards, zone:{xMin:24,xMax:74,yMin:74,yMax:80}, slotsCount:5,
-      checkFn: (slots)=>{
-        const orderMap = {step0:0,step1:1,step2:2,step3:3,step4:4};
-        return slots.every((cid,idx)=> orderMap[cid]===idx);
-      },
-      onSolved: ()=> unlockRoom2(),
-      onWrong: ()=>{
-        $("#netHexes").classList.add("shake");
-        setTimeout(()=> $("#netHexes").classList.remove("shake"), 450);
-        subtitle("ARCA","Ese orden no estabiliza la red. Vuelve a intentarlo.",2800);
-      }
-    });
-    room2Puzzle.spawn();
-  } else {
-    $("#hs-netcover").classList.add("shake");
-    setTimeout(()=> $("#hs-netcover").classList.remove("shake"), 450);
-    subtitle("ARCA","Está atascado. Necesito una herramienta.",2400);
-  }
-};
+/* Cada tornillo se quita con un click mientras el destornillador está
+   seleccionado. Al sacar los 4, la tapa se abre sola y aparece el puzzle
+   de los 5 pasos — ya no hace falta tocar la tapa para abrirla. */
+$$(".screw").forEach(screwEl=>{
+  screwEl.onclick = (e)=>{
+    e.stopPropagation();
+    if(netOpened || screwEl.classList.contains("removed")) return;
+    if(selectedInvId !== "toolkit"){
+      screwEl.classList.add("shake");
+      setTimeout(()=> screwEl.classList.remove("shake"), 450);
+      subtitle("ARCA","Necesito el destornillador para quitar este tornillo.",2400);
+      return;
+    }
+    screwEl.classList.add("removed");
+    unpulse(screwEl);
+    room2ScrewsRemoved++;
+    if(room2ScrewsRemoved === 1) subtitle("ARCA","Un tornillo menos. Quedan 3.",2200);
+    else if(room2ScrewsRemoved < 4) subtitle("ARCA","Bien, sigue con los demás tornillos.",2200);
+    if(room2ScrewsRemoved >= 4) openNetPanel();
+  };
+});
+function openNetPanel(){
+  netOpened = true;
+  $("#hs-netcover").classList.add("open");
+  removeItem("toolkit");
+  subtitle("ARCA","¡Tapa suelta! Cinco fragmentos de proceso quedaron expuestos. Reconéctalos en el orden correcto.",4400);
+  setObjective("Conecta los 5 fragmentos en el orden correcto del proceso.");
+  buildRoom2Hexes();
+  room2Puzzle = createDragPuzzle({
+    id:"r2", scene:"#scn-room2", slotSelector:"#netHexes .hexsocket", cardClass:"node-chip",
+    cards: room2Cards, zone:{xMin:24,xMax:74,yMin:74,yMax:80}, slotsCount:5,
+    checkFn: (slots)=>{
+      const orderMap = {step0:0,step1:1,step2:2,step3:3,step4:4};
+      return slots.every((cid,idx)=> orderMap[cid]===idx);
+    },
+    onSolved: ()=> unlockRoom2(),
+    onWrong: ()=>{
+      $("#netHexes").classList.add("shake");
+      setTimeout(()=> $("#netHexes").classList.remove("shake"), 450);
+      subtitle("ARCA","Ese orden no estabiliza la red. Vuelve a intentarlo.",2800);
+    }
+  });
+  room2Puzzle.spawn();
+}
 function buildRoom2Hexes(){
   const hex = $("#netHexes");
   hex.innerHTML = "";
@@ -1045,7 +1085,7 @@ function unlockRoom2(){
   frag.id = "fragmentRoom2";
   frag.textContent = letter;
   frag.style.left = "50%"; frag.style.top = "50%";
-  $("#netHexes").appendChild(frag);
+  $("#scn-room2").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
     addItem("frag"+letter, "🔠"+letter, "Fragmento "+letter);
@@ -1129,7 +1169,7 @@ function unlockRoom3(){
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
   frag.id = "fragmentRoom3"; frag.textContent = letter;
-  frag.style.left = "50%"; frag.style.top = "8%";
+  frag.style.left = "50%"; frag.style.top = "50%";
   $("#scn-room3").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
@@ -1201,7 +1241,10 @@ $("#noteItem").onclick = (e)=>{
 
 function shuffleRoom4Cables(){
   const container = document.querySelector("#scn-room4 .cables");
-  const cables = Array.from(container.children);
+  // Solo reordena los .cable — el botón de cerrar y la indicación de pista
+  // también viven dentro de este contenedor (para el acercamiento) y no
+  // deben mezclarse en la baraja.
+  const cables = Array.from(container.querySelectorAll(".cable"));
   for(let i=cables.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [cables[i],cables[j]] = [cables[j],cables[i]];
@@ -1221,10 +1264,9 @@ $("#termBtn").onclick = ()=>{
     $("#hs-termbox").classList.add("armed");
     unpulse("#hs-termbox");
     shuffleRoom4Cables();
-    subtitle("ARCA","Contrato armado. Corta los cables que no correspondan a una fuente verificada por el oráculo, y deja conectado el cable correcto.",4400);
-    setObjective("Corta los cables que no correspondan a una fuente verificada por el oráculo. Si no sabes cuál es, usa una pista.");
-    pulse(".cables");
-    $("#cablesHint").classList.add("show");
+    subtitle("ARCA","Contrato armado. Apareció una caja de cables — ábrela para verlos de cerca y cortar el correcto.",4400);
+    setObjective("Abre la caja de cables y corta los que no correspondan a una fuente verificada por el oráculo.");
+    $("#hs-cablebox").classList.add("show");
   } else {
     loseLife();
     subtitle("ARCA","Código incorrecto. Revisa la nota nuevamente.",2800);
@@ -1235,6 +1277,23 @@ $("#termInput").addEventListener("keydown",(e)=>{
   if(e.key==="Enter"){ e.preventDefault(); $("#termBtn").click(); }
 });
 
+/* La caja de cables solo aparece después de armar el contrato. Al tocarla,
+   "se acerca" (un acercamiento en pantalla completa) para que los 3 cables
+   y sus etiquetas se vean grandes y separados, en vez de amontonados en una
+   esquina de la sala. */
+function openCableCloseup(){
+  $("#room4Cables").classList.add("show");
+  $("#cableCloseupBackdrop").classList.add("show");
+  $("#cablesHint").classList.add("show");
+}
+function closeCableCloseup(){
+  $("#room4Cables").classList.remove("show");
+  $("#cableCloseupBackdrop").classList.remove("show");
+}
+$("#hs-cablebox").onclick = ()=> openCableCloseup();
+$("#closeCableCloseup").onclick = (e)=>{ e.stopPropagation(); closeCableCloseup(); };
+$("#cableCloseupBackdrop").onclick = ()=> closeCableCloseup();
+
 function resetRoom4Cables(){
   room4CablesCut.clear();
   document.querySelectorAll("#scn-room4 .cable").forEach(c=> c.classList.remove("cut"));
@@ -1242,7 +1301,7 @@ function resetRoom4Cables(){
 function checkRoom4Solved(){
   if(room4CablesCut.has("red") && room4CablesCut.has("blue") && !room4CablesCut.has("green")){
     room4Solved = true;
-    unpulse(".cables");
+    setTimeout(closeCableCloseup, 900);
     unlockRoom4();
   }
 }
@@ -1264,13 +1323,14 @@ document.querySelectorAll("#scn-room4 .cable").forEach(cableEl=>{
 });
 function unlockRoom4(){
   $("#cablesHint").classList.remove("show");
+  $("#hs-cablebox").classList.remove("show");
   const letter = roomLetterAssignment[4];
   subtitle("ARCA","¡Contrato ejecutado correctamente! Un fragmento se liberó.",3400);
   setObjective("Recoge el fragmento de letra liberado.");
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
   frag.id = "fragmentRoom4"; frag.textContent = letter;
-  frag.style.left = "50%"; frag.style.top = "10%";
+  frag.style.left = "50%"; frag.style.top = "50%";
   $("#scn-room4").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
@@ -1328,7 +1388,7 @@ function buildRoom5Hubs(){
   room5Types.forEach((t,i)=>{
     const d = document.createElement("div");
     d.className = "tokenhub"; d.dataset.slot = i;
-    d.innerHTML = `<div class="hubicon">🔒</div><span class="hubexamples">${t.examples}</span>`;
+    d.innerHTML = `<div class="hubicon">🔒</div><div class="nodeTextWrap"><span class="hubexamples">${t.examples}</span></div>`;
     hubs.appendChild(d);
   });
 }
@@ -1374,7 +1434,7 @@ function buildRoom5TokenPuzzle(){
   const cards = room5Types.map((t,i)=> ({id:t.id, cls:"t"+i, label:t.chipIcon, name:t.short, examine:t.examine}));
   const puzzle = createDragPuzzle({
     id:"r5", scene:"#scn-room5", slotSelector:"#tokenSlots .tokenhub", cardClass:"token-chip",
-    cards, zone:{xMin:8,xMax:92,yMin:58,yMax:74}, slotsCount:3,
+    cards, zone:{xMin:8,xMax:92,yMin:64,yMax:80}, slotsCount:3,
     checkFn: (slots)=> room5Types.every((t,idx)=> slots[idx]===t.id),
     onSolved: ()=> unlockRoom5(),
     onWrong: ()=>{
@@ -1392,7 +1452,7 @@ function unlockRoom5(){
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
   frag.id = "fragmentRoom5"; frag.textContent = letter;
-  frag.style.left = "50%"; frag.style.top = "8%";
+  frag.style.left = "50%"; frag.style.top = "50%";
   $("#scn-room5").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
@@ -1484,7 +1544,7 @@ function unlockRoom6(){
   const frag = document.createElement("div");
   frag.className = "fragmentGlow show";
   frag.id = "fragmentRoom6"; frag.textContent = letter;
-  frag.style.left = "50%"; frag.style.top = "82%";
+  frag.style.left = "50%"; frag.style.top = "50%";
   $("#scn-room6").appendChild(frag);
   frag.onclick = (e)=>{
     e.stopPropagation();
