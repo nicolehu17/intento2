@@ -930,6 +930,17 @@
     .era-card{width:9%;height:15%;}
     .node-chip{width:11%;height:15%;font-size:1.3rem;}
     .token-chip{width:10%;height:13%;font-size:1.3rem;}
+
+    /* En el celular el alto disponible es mucho menor que en escritorio,
+       así que las etiquetas (Nodo N, ejemplos, "Activo real"...) que están
+       fuera del casillero se salían de la bóveda/tapa y hasta del HUD. Se
+       achican y se acortan los márgenes para que quepan en ese espacio. */
+    .hublabel{font-size:.62rem;padding:2px 5px;}
+    .hubexamples{font-size:.66rem;padding:3px 7px;max-width:100px;line-height:1.15;}
+    .tokenhub .hubexamples{font-size:.68rem;max-width:110px;}
+    .nodeTextWrap{margin-top:4px;margin-bottom:4px;gap:3px;width:104px;}
+    .vaultdoor{top:9%;height:66%;}
+    .tokenslots{top:22%;}
   }
 
   /* En pantallas táctiles, evita selección de texto y gestos del navegador
