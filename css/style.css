@@ -19,12 +19,18 @@
     cursor:url('../img/screwdriver-cursor.png') 4 32, pointer !important;
   }
 
-  /* ============ CELULAR PORTRAIT: sin rotación ============
-     El juego llena toda la pantalla en vertical sin rotar. */
+  /* ============ CELULAR PORTRAIT: mismo aspecto 16:9, centrado ============
+     El stage mantiene su proporción horizontal pero se achica para caber
+     en el ancho del teléfono. El usuario puede hacer pinch-zoom. */
   @media(max-width:700px) and (orientation:portrait){
     html, body{width:100%;height:100%;}
-    #gameRoot{position:fixed;inset:0;}
-    #stage{aspect-ratio:unset;width:100%;height:100%;max-width:none;max-height:none;}
+    #gameRoot{position:fixed;inset:0;align-items:center;justify-content:center;}
+    #stage{
+      width:100vw;
+      height:calc(100vw * 9 / 16);
+      max-width:none;max-height:none;
+      aspect-ratio:16/9;
+    }
   }
 
   /* scanline / vignette overlay across whole game */
@@ -696,8 +702,18 @@
   .nucleoRow .nStat{color:var(--accent2);text-align:right;white-space:nowrap;}
 
   /* ============ INVENTORY BAR ============ */
-  #invBar{
+  #invWrap{
     position:absolute;left:50%;bottom:2%;transform:translateX(-50%);z-index:46;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  #invToggle{
+    background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.35);
+    color:var(--accent2);border-radius:16px;padding:2px 14px;font-size:.7rem;
+    cursor:pointer;line-height:1.4;transition:opacity .2s;
+  }
+  #invWrap.hidden #invBar{display:none;}
+  #invWrap.hidden #invToggle{opacity:.7;}
+  #invBar{
     display:flex;gap:8px;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.25);
     border-radius:10px;padding:6px 10px;min-height:34px;
   }

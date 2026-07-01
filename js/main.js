@@ -12,6 +12,12 @@ function applyTheme(){
   const btn = $("#hudTheme");
   if(btn) btn.textContent = currentTheme==="light" ? "☀️ Claro" : "🌙 Oscuro";
 }
+$("#invToggle").onclick = ()=>{
+  const wrap = $("#invWrap");
+  const hidden = wrap.classList.toggle("hidden");
+  $("#invToggle").textContent = hidden ? "▲ Inventario" : "▼";
+};
+
 $("#hudTheme").onclick = ()=>{
   currentTheme = currentTheme==="light" ? "dark" : "light";
   try{ localStorage.setItem("bloqueTheme", currentTheme); }catch(e){}
