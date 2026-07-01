@@ -1287,7 +1287,7 @@ $("#termBtn").onclick = ()=>{
     subtitle("ARCA","Necesitas encontrar el código de activación antes de usar la terminal.",2800);
     return;
   }
-  const val = $("#termInput").value.trim().toUpperCase();
+  const val = $("#termInput").value.trim().normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();
   if(val === "ORACULO"){
     room4Armed = true;
     $("#hs-termbox").classList.add("armed");
