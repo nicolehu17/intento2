@@ -607,7 +607,7 @@
      etiquetas se asoman por los bordes antes de que la bóveda se abra. */
   .vaultdoor{
     position:absolute;left:17%;top:13%;width:66%;height:58%;background:linear-gradient(160deg,#2e2821,#1a1713);
-    border:3px solid #8c7c6a;border-radius:6px;transition:transform .6s ease, opacity .5s ease;z-index:8;
+    border:3px solid #8c7c6a;border-radius:6px;transition:transform .6s ease, opacity .5s ease;z-index:12;
   }
   .vaultdoor.open{transform:translateX(-130%);opacity:0;pointer-events:none;}
   /* Casilleros más separados horizontalmente (antes muy juntos en una franja
