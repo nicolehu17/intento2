@@ -1072,7 +1072,7 @@ function openNetPanel(){
   buildRoom2Hexes();
   room2Puzzle = createDragPuzzle({
     id:"r2", scene:"#scn-room2", slotSelector:"#netHexes .hexsocket", cardClass:"node-chip",
-    cards: room2Cards, zone:{xMin:24,xMax:74,yMin:74,yMax:80}, slotsCount:5,
+    cards: room2Cards, zone:{xMin:4,xMax:96,yMin:73,yMax:88}, slotsCount:5,
     checkFn: (slots)=>{
       const orderMap = {step0:0,step1:1,step2:2,step3:3,step4:4};
       return slots.every((cid,idx)=> orderMap[cid]===idx);

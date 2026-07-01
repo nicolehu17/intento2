@@ -937,10 +937,18 @@
        achican y se acortan los márgenes para que quepan en ese espacio. */
     .hublabel{font-size:.62rem;padding:2px 5px;}
     .hubexamples{font-size:.66rem;padding:3px 7px;max-width:100px;line-height:1.15;}
-    .tokenhub .hubexamples{font-size:.68rem;max-width:110px;}
     .nodeTextWrap{margin-top:4px;margin-bottom:4px;gap:3px;width:104px;}
     .vaultdoor{top:9%;height:66%;}
     .tokenslots{top:22%;}
+    /* El ejemplo de la Sala 5 (BNB·FIL, RealT·PAX...) seguía saliéndose de
+       la bóveda en celular incluso achicado — en vez de seguir reduciendo
+       el texto hasta hacerlo ilegible, se oculta en pantallas chicas; el
+       candado y el botón de pista 💡 siguen indicando qué va en cada lugar. */
+    .tokenhub .hubexamples{display:none;}
+
+    /* La caja de cables (Sala 4) quedaba pegada a la barra de inventario
+       en celular — se sube más arriba para dejar espacio entre ambas. */
+    .cableBox{bottom:24%;}
   }
 
   /* En pantallas táctiles, evita selección de texto y gestos del navegador
