@@ -19,21 +19,12 @@
     cursor:url('../img/screwdriver-cursor.png') 4 32, pointer !important;
   }
 
-  /* ============ FORZAR INTERFAZ HORIZONTAL EN CELULAR ============
-     El juego está diseñado como una escena 16:9 (horizontal). En vez de
-     reacomodar cada sala a un formato 9:16 vertical (que las deformaba),
-     cuando el teléfono está en posición vertical se rota visualmente todo
-     #gameRoot 90° con CSS para que el jugador vea la interfaz horizontal
-     completa — el celular debe girarse de lado para jugar, igual que la
-     mayoría de los juegos web pensados para horizontal. */
+  /* ============ CELULAR PORTRAIT: sin rotación ============
+     El juego llena toda la pantalla en vertical sin rotar. */
   @media(max-width:700px) and (orientation:portrait){
     html, body{width:100%;height:100%;}
-    #gameRoot{
-      position:fixed;top:0;left:100%;right:auto;bottom:auto;
-      width:100vh;height:100vw;
-      transform-origin:0 0;
-      transform:rotate(90deg);
-    }
+    #gameRoot{position:fixed;inset:0;}
+    #stage{aspect-ratio:unset;width:100%;height:100%;max-width:none;max-height:none;}
   }
 
   /* scanline / vignette overlay across whole game */
@@ -145,11 +136,12 @@
 
   /* ============ TITLE / INTRO OVERLAYS ============ */
   .ui-overlay{
-    position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    position:absolute;inset:0;z-index:100;display:flex;align-items:flex-start;justify-content:center;
     background:rgba(2,4,8,.92);backdrop-filter:blur(3px);
+    overflow-y:auto;padding:16px 0;
   }
   .ui-overlay.hidden{display:none;}
-  .ui-box{max-width:480px;width:88%;text-align:center;padding:10px;}
+  .ui-box{max-width:480px;width:88%;text-align:center;padding:10px;margin:auto;}
   .ui-box h1{font-family:monospace;color:var(--accent);letter-spacing:3px;font-size:1.6rem;margin-bottom:4px;text-shadow:0 0 14px rgba(135,160,95,.6);}
   .ui-box .sub{color:var(--accent2);font-family:monospace;font-size:.72rem;letter-spacing:2px;margin-bottom:18px;}
   .ui-box p{color:var(--muted);font-size:.88rem;line-height:1.6;margin:10px 0;}

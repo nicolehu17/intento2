@@ -506,7 +506,7 @@ function gridPositions(n, zone){
    Esta función convierte un punto visual (relativo al stage) al left%/top%
    lógico correcto, según si la rotación está activa o no. */
 function isStageRotated(){
-  return window.matchMedia("(max-width:700px) and (orientation:portrait)").matches;
+  return false; // rotación portrait eliminada — el juego ya no gira el stage
 }
 function visualPointToStagePercent(stage, visualX, visualY){
   if(isStageRotated()){
