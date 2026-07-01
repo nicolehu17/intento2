@@ -292,7 +292,8 @@ function renderHistory(){
     const row = document.createElement("div");
     row.className = "glossaryTerm";
     const tag = entry.type === "hint" ? "💡 Pista" : "🔎 Encontrado";
-    row.innerHTML = `<b>Sala ${entry.room} — ${tag}</b><div>${entry.text}</div>`;
+    const cleanText = entry.text.replace(/<img[^>]*>/gi, "🖼").replace(/<[^>]+>/g,"");
+    row.innerHTML = `<b>Sala ${entry.room} — ${tag}</b><div>${cleanText}</div>`;
     list.appendChild(row);
   });
 }

@@ -47,7 +47,7 @@
   .scene.active{opacity:1;visibility:visible;}
 
   /* ============ HUD ============ */
-  #hud{position:absolute;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 16px;pointer-events:none;flex-wrap:wrap;}
+  #hud{position:absolute;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;pointer-events:none;flex-wrap:nowrap;padding-right:52px;}
   #hudLives{font-size:.85rem;letter-spacing:2px;text-shadow:0 0 6px rgba(0,0,0,.8);pointer-events:auto;}
   #hudGlossary, #hudHistory, #hudTheme{
     pointer-events:auto;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.4);color:var(--accent2);
@@ -582,10 +582,11 @@
   .termbox.armed input{border-color:var(--accent2);}
   /* Indicación de qué hacer con los cables, dentro del acercamiento. */
   .cablesHint{
-    position:absolute;left:50%;top:10px;transform:translateX(-50%);
+    position:absolute;left:50%;top:12px;transform:translateX(-50%);
     max-width:78%;text-align:center;font-size:.72rem;line-height:1.35;color:#cdd8b8;
-    background:rgba(135,160,95,.16);border:1px solid rgba(135,160,95,.4);
+    background:rgba(8,10,14,.97);border:1px solid rgba(135,160,95,.5);
     border-radius:6px;padding:7px 14px;opacity:0;transition:opacity .3s;pointer-events:none;
+    z-index:100;
   }
   .cablesHint.show{opacity:1;}
 
@@ -734,7 +735,7 @@
   .examine-hint.show{opacity:1;}
 
   #backToHall, .backBtn{
-    position:absolute;top:44px;left:14px;z-index:47;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.3);
+    position:absolute;top:10px;left:10px;z-index:47;background:rgba(10,9,7,.95);border:1px solid rgba(140,155,135,.3);
     color:var(--accent2);border-radius:16px;padding:5px 12px;font-size:.7rem;cursor:pointer;
   }
   #backToHall:hover, .backBtn:hover{background:rgba(30,38,28,.95);}
@@ -914,7 +915,7 @@
     #objectiveBar{max-width:46%;font-size:.66rem;top:50px;right:10px;padding:6px 11px;}
     #hintBtn{width:42px;height:42px;font-size:1.1rem;}
     #hintBadge{min-width:18px;height:18px;font-size:.65rem;}
-    #backToHall, .backBtn{top:50px;left:10px;padding:7px 14px;font-size:.72rem;}
+    #backToHall, .backBtn{top:10px;left:6px;padding:5px 10px;font-size:.66rem;}
     .ui-box h1{font-size:1.25rem;}
     .ui-box p{font-size:.82rem;}
     .gbtn{padding:12px 20px;font-size:.88rem;min-height:42px;}
@@ -950,6 +951,8 @@
     .vaultdoor{top:9%;height:66%;}
     .tokenslots{top:22%;}
     .tokenhub .hubexamples{display:none;}
+    .tokenhub .hublabel{display:none;}
+    .tokenhub .nodeTextWrap{display:none;}
 
     /* La caja de cables (Sala 4) quedaba pegada a la barra de inventario
        en celular — se sube más arriba para dejar espacio entre ambas. */
