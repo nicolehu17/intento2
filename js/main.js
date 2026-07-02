@@ -64,7 +64,7 @@ const roomNames = {
 /* Configura aquí la URL de tu Google Apps Script Web App para recibir resultados.
    Si se deja vacío, el juego no intentará enviar nada y mostrará directamente
    la advertencia de respaldo manual. */
-const GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwHNSN1FZBez_DwGE03zb7cxPaTGcd8uMfRpX2q-mZXI8jWCx7yCc8ommLfBp-Zr-O9/exec";
+const GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyjr4OyuuitHV3B3nk471W_3C5mzRQIldG5odJXOdcAr4P7zQ2q59Tga8aUMA-0NSOV/exec";
 
 function checkGameComplete(){
   if(gameCompleteShown) return;
