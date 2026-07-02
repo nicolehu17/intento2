@@ -22,7 +22,7 @@
   /* ============ CELULAR PORTRAIT: mismo aspecto 16:9, centrado ============
      El stage mantiene su proporción horizontal pero se achica para caber
      en el ancho del teléfono. El usuario puede hacer pinch-zoom. */
-  @media(max-width:700px) and (orientation:portrait){
+  @media(max-width:900px) and (orientation:portrait){
     html, body{width:100%;height:100%;}
     #gameRoot{position:fixed;inset:0;align-items:center;justify-content:center;}
     #stage{
@@ -905,7 +905,7 @@
      ya no hace falta deformar casilleros/fichas. Aquí solo se agrandan los
      botones y textos del HUD a un tamaño cómodo para el dedo (mínimo ~44px
      de alto, el estándar táctil). */
-  @media(max-width:700px){
+  @media(max-width:900px){
     /* La barra de objetivo y el botón de regreso se ubican DEBAJO de la
        fila del HUD (no en la misma esquina) para que nunca se solapen con
        los botones de Glosario/Historial/Tema ni con los corazones. */
@@ -948,8 +948,8 @@
     .hubexamples{font-size:.54rem;padding:2px 5px;max-width:84px;line-height:1.1;}
     .nodeTextWrap{margin-top:3px;margin-bottom:3px;gap:2px;width:88px;}
     .tokenhub .nodeTextWrap{margin-bottom:4px;}
-    .vaultdoor{top:9%;height:66%;}
-    .tokenslots{top:22%;}
+    .vaultdoor{top:12%;height:70%;}
+    .tokenslots{top:26%;height:44%;}
     .tokenhub .hubexamples{display:none !important;}
     .tokenhub .hublabel{display:none !important;}
     .tokenhub .nodeTextWrap{display:none !important;}
