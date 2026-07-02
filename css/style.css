@@ -948,8 +948,8 @@
     .hubexamples{font-size:.54rem;padding:2px 5px;max-width:84px;line-height:1.1;}
     .nodeTextWrap{margin-top:3px;margin-bottom:3px;gap:2px;width:88px;}
     .tokenhub .nodeTextWrap{margin-bottom:4px;}
-    .vaultdoor{top:12%;height:70%;}
-    .tokenslots{top:26%;height:44%;}
+    .vaultdoor{top:12%;height:70%;left:3%;width:76%;}
+    .tokenslots{top:26%;height:44%;left:3%;width:76%;}
     .tokenhub .hubexamples{display:none !important;}
     .tokenhub .hublabel{display:none !important;}
     .tokenhub .nodeTextWrap{display:none !important;}
