@@ -415,10 +415,10 @@
   .toolbox-item img{width:170%;height:170%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;}
 
   .node-chip{
-    position:absolute;width:7.5%;height:10%;border-radius:5px;cursor:grab;z-index:20;
+    position:absolute;width:5%;height:7%;border-radius:5px;cursor:grab;z-index:20;
     border:2px solid rgba(255,255,255,.15);box-shadow:0 6px 14px rgba(0,0,0,.6);
     touch-action:none;transition:box-shadow .2s;display:flex;align-items:center;justify-content:center;
-    font-size:1.7rem;font-family:monospace;background:#181410;
+    font-size:1.2rem;font-family:monospace;background:#181410;
     user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
   }
   .node-chip:active{cursor:grabbing;}
@@ -937,7 +937,7 @@
        salía del borde. Se agranda un poco la tarjeta y se achica el ícono
        para que quede contenido en ambos casos. */
     .era-card{width:9%;height:15%;}
-    .node-chip{width:11%;height:15%;font-size:1.3rem;}
+    .node-chip{width:8%;height:10%;font-size:1rem;}
     .token-chip{width:10%;height:13%;font-size:1.3rem;}
 
     /* En el celular el alto disponible es mucho menor que en escritorio,
