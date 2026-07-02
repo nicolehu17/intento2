@@ -193,6 +193,7 @@ function showFinalResults(){
   $("#rankBadge").textContent = "Rango: " + rank;
   $("#ov-final").classList.remove("hidden");
   sendResultsToSheet({playerName, score, rank, totalMistakes, timeStr, roomMistakes});
+  SCORM.sendResult({ score, maxScore: 1000, lives, completed: true, studentName: playerName });
 }
 
 function sendResultsToSheet(payload){
