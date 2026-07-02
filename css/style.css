@@ -950,9 +950,9 @@
     .tokenhub .nodeTextWrap{margin-bottom:4px;}
     .vaultdoor{top:9%;height:66%;}
     .tokenslots{top:22%;}
-    .tokenhub .hubexamples{display:none;}
-    .tokenhub .hublabel{display:none;}
-    .tokenhub .nodeTextWrap{display:none;}
+    .tokenhub .hubexamples{display:none !important;}
+    .tokenhub .hublabel{display:none !important;}
+    .tokenhub .nodeTextWrap{display:none !important;}
 
     /* La caja de cables (Sala 4) quedaba pegada a la barra de inventario
        en celular — se sube más arriba para dejar espacio entre ambas. */
